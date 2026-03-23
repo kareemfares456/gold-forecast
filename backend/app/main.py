@@ -67,11 +67,23 @@ _dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
 if _dist.exists():
     app.mount("/assets", StaticFiles(directory=str(_dist / "assets")), name="assets")
 
+    # Hashed assets (/assets/*.js, /assets/*.css) get long-term caching —
+    # they are already handled by the StaticFiles mount above with immutable
+    # content-hash filenames, so browsers re-fetch automatically on deploy.
+
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
         # Serve real static files (sitemap.xml, robots.txt, favicon.svg, etc.)
         file_path = _dist / full_path
         if file_path.exists() and file_path.is_file():
             return FileResponse(str(file_path))
-        # Fall back to index.html for all SPA routes
-        return FileResponse(str(_dist / "index.html"))
+        # Fall back to index.html — always no-cache so browsers fetch the
+        # latest version and pick up the new hashed JS/CSS filenames.
+        return FileResponse(
+            str(_dist / "index.html"),
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            },
+        )
