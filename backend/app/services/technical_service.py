@@ -215,5 +215,5 @@ def get_technical_indicators() -> Dict[str, Any]:
         return {"error": "Unable to fetch data for technical analysis"}
 
     result = compute_indicators(df)
-    cache.set(cache_key, result, 300)  # 5-minute cache
+    cache.set(cache_key, result, settings.forecast_cache_ttl)  # 1-hour cache
     return result

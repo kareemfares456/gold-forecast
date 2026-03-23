@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     anthropic_api_key: Optional[str] = None
     gold_ticker: str = "GC=F"
     history_days: int = 365
-    cache_ttl_seconds: int = 60
+    cache_ttl_seconds: int = 300
     forecast_cache_ttl: int = 3600
 
     class Config:

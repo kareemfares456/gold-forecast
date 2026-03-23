@@ -1,4 +1,5 @@
 import os
+import threading
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,14 +11,32 @@ from app.routers.gold import router as gold_router
 from app.config import settings
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Warm the cache on startup so first request is fast
+def _warm_all_caches():
+    """Pre-populate all caches in a background thread so the first real
+    user request is served instantly instead of waiting for computation."""
     try:
         from app.services.data_service import get_current_price
-        get_current_price()
+        from app.services.technical_service import get_technical_indicators
+        from app.services.forecast_service import get_ensemble_forecast
+        from app.services.institutional_service import get_institutional_forecasts
+
+        price_data = get_current_price()
+        get_technical_indicators()
+        get_ensemble_forecast()
+        if price_data:
+            get_institutional_forecasts(
+                current_price=price_data.get("price", 0),
+                change_pct=price_data.get("change_pct", 0),
+            )
     except Exception:
         pass
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Warm all caches in the background — server starts immediately and
+    # data is ready before the first user request arrives.
+    threading.Thread(target=_warm_all_caches, daemon=True).start()
     yield
 
 
