@@ -1,0 +1,127 @@
+import yfinance as yf
+import pandas as pd
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
+
+from app.config import settings
+from app.utils.cache import cache
+
+# Fallback tickers in priority order
+TICKER_FALLBACKS = ["GC=F", "XAUUSD=X", "GLD"]
+
+
+def _fetch_via_ticker(symbol: str, period: str) -> Optional[pd.DataFrame]:
+    """Try yf.Ticker().history() approach."""
+    try:
+        t = yf.Ticker(symbol)
+        df = t.history(period=period, auto_adjust=True)
+        if df.empty:
+            return None
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+        df.index = pd.to_datetime(df.index).tz_localize(None)
+        return df
+    except Exception:
+        return None
+
+
+def _fetch_via_download(symbol: str, period: str) -> Optional[pd.DataFrame]:
+    """Try yf.download() approach."""
+    try:
+        df = yf.download(symbol, period=period, auto_adjust=True, progress=False)
+        if df.empty:
+            return None
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+        df.index = pd.to_datetime(df.index)
+        if df.index.tz is not None:
+            df.index = df.index.tz_localize(None)
+        return df
+    except Exception:
+        return None
+
+
+def _fetch_raw(period: str = "1y") -> Optional[pd.DataFrame]:
+    """Try multiple tickers and methods until one succeeds."""
+    tickers = [settings.gold_ticker] + [t for t in TICKER_FALLBACKS if t != settings.gold_ticker]
+    for symbol in tickers:
+        df = _fetch_via_ticker(symbol, period)
+        if df is not None and not df.empty:
+            return df
+        df = _fetch_via_download(symbol, period)
+        if df is not None and not df.empty:
+            return df
+    return None
+
+
+def get_ohlcv_df(period: str = "1y") -> Optional[pd.DataFrame]:
+    """Return cached OHLCV DataFrame."""
+    cache_key = f"ohlcv_{settings.gold_ticker}_{period}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+    df = _fetch_raw(period)
+    if df is not None:
+        cache.set(cache_key, df, settings.cache_ttl_seconds)
+    return df
+
+
+def get_current_price() -> Dict[str, Any]:
+    """Return live price info plus recent history for the header."""
+    cache_key = f"current_price_{settings.gold_ticker}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    df = get_ohlcv_df("1y")
+    if df is None or df.empty:
+        return {"error": "Unable to fetch gold price data"}
+
+    latest = df.iloc[-1]
+    prev = df.iloc[-2] if len(df) > 1 else latest
+
+    current_price = float(latest["Close"])
+    prev_close = float(prev["Close"])
+    change = current_price - prev_close
+    change_pct = (change / prev_close) * 100 if prev_close else 0.0
+
+    high_52w = float(df["High"].max())
+    low_52w = float(df["Low"].min())
+
+    history_df = df.tail(90)
+    history = []
+    for idx, row in history_df.iterrows():
+        try:
+            history.append({
+                "date": idx.strftime("%Y-%m-%d"),
+                "open": round(float(row["Open"]), 2),
+                "high": round(float(row["High"]), 2),
+                "low": round(float(row["Low"]), 2),
+                "close": round(float(row["Close"]), 2),
+                "volume": int(row["Volume"]) if not pd.isna(row["Volume"]) else 0,
+            })
+        except Exception:
+            continue
+
+    result = {
+        "current_price": round(current_price, 2),
+        "currency": "USD",
+        "change": round(change, 2),
+        "change_pct": round(change_pct, 4),
+        "high_52w": round(high_52w, 2),
+        "low_52w": round(low_52w, 2),
+        "history": history,
+        "last_updated": df.index[-1].strftime("%Y-%m-%d"),
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+    }
+    cache.set(cache_key, result, settings.cache_ttl_seconds)
+    return result
+
+
+def get_history_df(days: int = 365) -> Optional[pd.DataFrame]:
+    """Return last N calendar days of OHLCV data."""
+    df = get_ohlcv_df("2y")
+    if df is None:
+        return None
+    cutoff = pd.Timestamp.now() - pd.Timedelta(days=days)
+    return df[df.index >= cutoff].copy()
