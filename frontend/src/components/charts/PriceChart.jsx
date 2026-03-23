@@ -51,8 +51,9 @@ const ForecastDot = (props) => {
   const { cx, cy, payload, index, isMobile } = props
   if (payload.forecast == null || cx == null) return null
 
+  const color = FORECAST_COLORS[payload.colorIndex % FORECAST_COLORS.length]
+
   if (isMobile) {
-    const color = FORECAST_COLORS[index % FORECAST_COLORS.length]
     return (
       <g>
         <circle cx={cx} cy={cy} r={10} fill={color} fillOpacity={0.15} />
@@ -63,7 +64,7 @@ const ForecastDot = (props) => {
 
   const label = payload.date.replace('+', '')
   const price = formatCompact(payload.forecast)
-  const offset = LABEL_OFFSETS[index % LABEL_OFFSETS.length] || { dx: -38, dy: -30 }
+  const offset = LABEL_OFFSETS[payload.colorIndex % LABEL_OFFSETS.length] || { dx: -38, dy: -30 }
 
   const boxW = 80
   const boxH = 34
@@ -77,17 +78,17 @@ const ForecastDot = (props) => {
       <line
         x1={cx} y1={cy}
         x2={connX} y2={connY}
-        stroke="#f59e0b" strokeWidth={1} strokeOpacity={0.4}
+        stroke={color} strokeWidth={1} strokeOpacity={0.4}
         strokeDasharray="2 2"
       />
-      <circle cx={cx} cy={cy} r={12} fill="#f59e0b" fillOpacity={0.15} />
-      <circle cx={cx} cy={cy} r={7} fill="#f59e0b" stroke="#F8F9FA" strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={12} fill={color} fillOpacity={0.15} />
+      <circle cx={cx} cy={cy} r={7} fill={color} stroke="#F8F9FA" strokeWidth={2} />
       <rect
         x={boxX} y={boxY}
         width={boxW} height={boxH}
         rx={5}
         fill="#FFFFFF"
-        stroke="#f59e0b"
+        stroke={color}
         strokeWidth={1}
         strokeOpacity={0.7}
       />
@@ -104,7 +105,7 @@ const ForecastDot = (props) => {
       <text
         x={boxX + boxW / 2} y={boxY + 26}
         textAnchor="middle"
-        fill="#fbbf24"
+        fill={color}
         fontSize={11}
         fontWeight="700"
       >
@@ -131,9 +132,10 @@ export default function PriceChart({ history, forecasts }) {
 
   const historyData = (history || []).map((p) => ({ date: p.date, close: p.close }))
 
-  const forecastPoints = (forecasts || []).map((f) => ({
+  const forecastPoints = (forecasts || []).map((f, i) => ({
     date: `+${f.label}`,
     forecast: f.predicted_price,
+    colorIndex: i,
   }))
 
   const historyLen = historyData.length
