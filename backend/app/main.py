@@ -69,4 +69,9 @@ if _dist.exists():
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
+        # Serve real static files (sitemap.xml, robots.txt, favicon.svg, etc.)
+        file_path = _dist / full_path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(str(file_path))
+        # Fall back to index.html for all SPA routes
         return FileResponse(str(_dist / "index.html"))
