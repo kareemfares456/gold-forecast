@@ -28,6 +28,15 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
+// Distinct color per forecast point (used on mobile dots + legend)
+const FORECAST_COLORS = [
+  '#f59e0b', // Tomorrow  — amber
+  '#3b82f6', // 3 Days    — blue
+  '#22c55e', // 1 Week    — green
+  '#a855f7', // 1 Month   — purple
+  '#f43f5e', // 1 Year    — rose
+]
+
 // Stagger heights so annotation boxes don't overlap on desktop
 const LABEL_OFFSETS = [
   { dx: -38, dy: -30 },  // Tomorrow  — low
@@ -42,10 +51,11 @@ const ForecastDot = (props) => {
   if (payload.forecast == null || cx == null) return null
 
   if (isMobile) {
+    const color = FORECAST_COLORS[index % FORECAST_COLORS.length]
     return (
       <g>
-        <circle cx={cx} cy={cy} r={10} fill="#f59e0b" fillOpacity={0.15} />
-        <circle cx={cx} cy={cy} r={5} fill="#f59e0b" stroke="#F8F9FA" strokeWidth={2} />
+        <circle cx={cx} cy={cy} r={10} fill={color} fillOpacity={0.15} />
+        <circle cx={cx} cy={cy} r={5} fill={color} stroke="#F8F9FA" strokeWidth={2} />
       </g>
     )
   }
@@ -240,16 +250,22 @@ export default function PriceChart({ history, forecasts }) {
       {/* Mobile forecast legend — shown instead of inline annotation boxes */}
       {isMobile && forecastPoints.length > 0 && (
         <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-200 justify-between">
-          {forecastPoints.map((fp) => (
-            <div key={fp.date} className="flex flex-col items-center">
-              <p className="text-gray-500 text-xs leading-tight mb-0.5 whitespace-nowrap">
-                {fp.date.replace('+', '')}
-              </p>
-              <p className="text-amber-400 font-mono text-xs font-bold whitespace-nowrap">
-                {formatCompact(fp.forecast)}
-              </p>
-            </div>
-          ))}
+          {forecastPoints.map((fp, i) => {
+            const color = FORECAST_COLORS[i % FORECAST_COLORS.length]
+            return (
+              <div key={fp.date} className="flex flex-col items-center">
+                <div className="flex items-center gap-1 mb-0.5">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                  <p className="text-gray-500 text-xs leading-tight whitespace-nowrap">
+                    {fp.date.replace('+', '')}
+                  </p>
+                </div>
+                <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>
+                  {formatCompact(fp.forecast)}
+                </p>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
