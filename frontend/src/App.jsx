@@ -12,14 +12,14 @@ import { useTechnical } from './hooks/useTechnical'
 import { useInstitutional } from './hooks/useInstitutional'
 
 export default function App() {
-  const { data: priceData, loading: priceLoading } = useGoldPrice()
+  const { data: priceData, loading: priceLoading, refetch: refetchPrice, lastUpdatedAt } = useGoldPrice()
   const { data: forecastData, loading: forecastLoading, refetch: refetchForecast } = useForecast()
   const { data: technicalData, loading: technicalLoading } = useTechnical()
   const { data: institutionalData, loading: institutionalLoading } = useInstitutional()
 
   return (
     <div className="min-h-screen bg-dark-900">
-      <Header data={priceData} loading={priceLoading} />
+      <Header data={priceData} loading={priceLoading} onRefresh={refetchPrice} lastUpdatedAt={lastUpdatedAt} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Price chart */}

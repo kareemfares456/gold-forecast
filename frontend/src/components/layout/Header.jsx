@@ -1,10 +1,9 @@
 import { formatCompact, formatPct, pctColor } from '../../utils/formatters'
 
-export default function Header({ data, loading }) {
+export default function Header({ data, loading, onRefresh, lastUpdatedAt }) {
   const price = data?.current_price
   const changePct = data?.change_pct
   const change = data?.change
-  const lastUpdated = data?.last_updated
 
   return (
     <header className="bg-dark-800 border-b border-dark-600 sticky top-0 z-50">
@@ -21,23 +20,46 @@ export default function Header({ data, loading }) {
           </div>
         </div>
 
-        {/* Live Price */}
-        {loading ? (
+        {/* Live Price + Refresh */}
+        {loading && !price ? (
           <div className="text-right flex-shrink-0">
             <div className="skeleton h-5 w-24 mb-1" />
             <div className="skeleton h-3 w-16" />
           </div>
         ) : price ? (
-          <div className="text-right flex-shrink-0">
-            <div className="text-gold-400 font-bold text-xl sm:text-2xl font-mono tracking-tight">
-              {formatCompact(price)}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="text-right">
+              <div className="text-gold-400 font-bold text-xl sm:text-2xl font-mono tracking-tight">
+                {formatCompact(price)}
+              </div>
+              <div className={`text-xs sm:text-sm font-medium ${pctColor(changePct)}`}>
+                {change >= 0 ? '▲' : '▼'} {Math.abs(change).toFixed(2)} ({formatPct(changePct)})
+              </div>
+              {lastUpdatedAt && (
+                <div className="text-gray-600 text-xs mt-0.5">
+                  Updated {lastUpdatedAt}
+                </div>
+              )}
             </div>
-            <div className={`text-xs sm:text-sm font-medium ${pctColor(changePct)}`}>
-              {change >= 0 ? '▲' : '▼'} {Math.abs(change).toFixed(2)} ({formatPct(changePct)})
-            </div>
-            {lastUpdated && (
-              <div className="text-gray-600 text-xs mt-0.5 hidden sm:block">Updated {lastUpdated}</div>
-            )}
+
+            {/* Refresh button */}
+            <button
+              onClick={onRefresh}
+              disabled={loading}
+              title="Refresh price"
+              className="ml-1 p-1.5 rounded-md text-gray-500 hover:text-gold-400 hover:bg-dark-700 disabled:opacity-40 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
           </div>
         ) : null}
       </div>
