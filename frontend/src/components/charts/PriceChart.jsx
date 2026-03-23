@@ -34,6 +34,7 @@ const FORECAST_COLORS = [
   '#3b82f6', // 3 Days    — blue
   '#22c55e', // 1 Week    — green
   '#a855f7', // 1 Month   — purple
+  '#14b8a6', // 6 Months  — teal
   '#f43f5e', // 1 Year    — rose
 ]
 

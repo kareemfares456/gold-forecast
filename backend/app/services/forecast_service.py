@@ -21,6 +21,7 @@ TIMEFRAMES = [
     {"key": "3d",  "label": "3 Days",    "trading_days": 3},
     {"key": "1w",  "label": "1 Week",    "trading_days": 5},
     {"key": "1m",  "label": "1 Month",   "trading_days": 21},
+    {"key": "6m",  "label": "6 Months",  "trading_days": 126},
     {"key": "1y",  "label": "1 Year",    "trading_days": 252},
 ]
 
@@ -30,6 +31,7 @@ WEIGHTS = {
     3:   (0.40, 0.30, 0.30),
     5:   (0.25, 0.45, 0.30),
     21:  (0.10, 0.60, 0.30),
+    126: (0.07, 0.65, 0.28),
     252: (0.05, 0.70, 0.25),
 }
 

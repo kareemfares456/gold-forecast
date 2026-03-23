@@ -6,8 +6,8 @@ export default function ForecastGrid({ forecasts, loading }) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {[...Array(5)].map((_, i) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        {[...Array(6)].map((_, i) => (
           <div key={i} className="bg-dark-800 border border-dark-600 rounded-xl p-4 space-y-2">
             <div className="skeleton h-3 w-16" />
             <div className="skeleton h-7 w-24" />
@@ -30,7 +30,7 @@ export default function ForecastGrid({ forecasts, loading }) {
         </span>
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {forecasts.map((f) => (
           <ForecastCard
             key={f.timeframe}
