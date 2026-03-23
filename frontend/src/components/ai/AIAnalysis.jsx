@@ -1,7 +1,7 @@
 const sentimentColors = {
-  bullish: 'bg-green-900 text-green-400 border-green-700',
-  bearish: 'bg-red-900 text-red-400 border-red-700',
-  neutral: 'bg-dark-600 text-gray-400 border-dark-500',
+  bullish: 'bg-green-50 text-green-700 border-green-200',
+  bearish: 'bg-red-50 text-red-700 border-red-200',
+  neutral: 'bg-gray-100 text-gray-600 border-gray-200',
 }
 
 export default function AIAnalysis({ data, loading }) {
@@ -24,17 +24,17 @@ export default function AIAnalysis({ data, loading }) {
 
   if (!available) {
     return (
-      <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 text-center">
+      <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 text-center shadow-sm">
         <p className="text-gray-500 text-sm">AI analysis unavailable</p>
-        {error && <p className="text-gray-600 text-xs mt-1">{error}</p>}
+        {error && <p className="text-gray-400 text-xs mt-1">{error}</p>}
       </div>
     )
   }
 
   return (
-    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4">
+    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-white font-semibold text-base">
+        <h2 className="text-gray-900 font-semibold text-base">
           AI Market Analysis
           <span className="text-gray-500 font-normal text-sm ml-2">powered by Claude</span>
         </h2>
@@ -48,8 +48,8 @@ export default function AIAnalysis({ data, loading }) {
       {Array.isArray(analysis) && analysis.length > 0 && (
         <ul className="space-y-3">
           {analysis.map((bullet, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-gray-300 leading-relaxed">
-              <span className="text-gold-500 font-semibold text-xs mt-0.5 w-20 flex-shrink-0">
+            <li key={i} className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed">
+              <span className="text-gold-600 font-semibold text-xs mt-0.5 w-20 flex-shrink-0">
                 {bullet.label ?? bullet}
               </span>
               <span>{bullet.text ?? ''}</span>

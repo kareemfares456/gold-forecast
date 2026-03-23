@@ -6,15 +6,15 @@ export default function Header({ data, loading, onRefresh, lastUpdatedAt }) {
   const change = data?.change
 
   return (
-    <header className="bg-dark-800 border-b border-dark-600 sticky top-0 z-50">
+    <header className="bg-dark-800 border-b border-dark-600 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gold-500 flex items-center justify-center text-dark-900 font-bold text-sm">
+          <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gold-500 flex items-center justify-center text-white font-bold text-sm">
             Au
           </div>
           <div className="min-w-0">
-            <h1 className="text-white font-bold text-base sm:text-lg leading-none">Gold Forecaster</h1>
+            <h1 className="text-gray-900 font-bold text-base sm:text-lg leading-none">Gold Forecaster</h1>
             <p className="text-gray-500 text-xs hidden sm:block">XAU/USD · Gold Futures (GC=F)</p>
             <p className="text-gray-500 text-xs sm:hidden">XAU/USD</p>
           </div>
@@ -29,14 +29,14 @@ export default function Header({ data, loading, onRefresh, lastUpdatedAt }) {
         ) : price ? (
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="text-right">
-              <div className="text-gold-400 font-bold text-xl sm:text-2xl font-mono tracking-tight">
+              <div className="text-gold-600 font-bold text-xl sm:text-2xl font-mono tracking-tight">
                 {formatCompact(price)}
               </div>
               <div className={`text-xs sm:text-sm font-medium ${pctColor(changePct)}`}>
                 {change >= 0 ? '▲' : '▼'} {Math.abs(change).toFixed(2)} ({formatPct(changePct)})
               </div>
               {lastUpdatedAt && (
-                <div className="text-gray-600 text-xs mt-0.5">
+                <div className="text-gray-400 text-xs mt-0.5">
                   Updated {lastUpdatedAt}
                 </div>
               )}
@@ -47,7 +47,7 @@ export default function Header({ data, loading, onRefresh, lastUpdatedAt }) {
               onClick={onRefresh}
               disabled={loading}
               title="Refresh price"
-              className="ml-1 p-1.5 rounded-md text-gray-500 hover:text-gold-400 hover:bg-dark-700 disabled:opacity-40 transition-colors"
+              className="ml-1 p-1.5 rounded-md text-gray-400 hover:text-wix hover:bg-gray-100 disabled:opacity-40 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

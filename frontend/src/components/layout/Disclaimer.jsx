@@ -1,6 +1,6 @@
 export default function Disclaimer({ text }) {
   return (
-    <div className="bg-dark-700 border border-dark-500 rounded-lg p-3 text-xs text-gray-500 text-center">
+    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700 text-center">
       ⚠️ {text || 'All forecasts are speculative and not financial advice.'}
     </div>
   )

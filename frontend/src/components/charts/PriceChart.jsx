@@ -17,8 +17,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   const relevant = payload.filter((p) => p.value != null)
   if (!relevant.length) return null
   return (
-    <div className="bg-dark-700 border border-dark-500 rounded-lg p-3 text-sm shadow-xl">
-      <p className="text-gray-400 mb-1">{label}</p>
+    <div className="bg-white border border-gray-200 rounded-lg p-3 text-sm shadow-xl">
+      <p className="text-gray-500 mb-1">{label}</p>
       {relevant.map((entry) => (
         <p key={entry.name} style={{ color: entry.color }} className="font-mono">
           {entry.name}: {formatCompact(entry.value)}
@@ -45,7 +45,7 @@ const ForecastDot = (props) => {
     return (
       <g>
         <circle cx={cx} cy={cy} r={10} fill="#f59e0b" fillOpacity={0.15} />
-        <circle cx={cx} cy={cy} r={5} fill="#f59e0b" stroke="#111" strokeWidth={2} />
+        <circle cx={cx} cy={cy} r={5} fill="#f59e0b" stroke="#F8F9FA" strokeWidth={2} />
       </g>
     )
   }
@@ -70,12 +70,12 @@ const ForecastDot = (props) => {
         strokeDasharray="2 2"
       />
       <circle cx={cx} cy={cy} r={12} fill="#f59e0b" fillOpacity={0.15} />
-      <circle cx={cx} cy={cy} r={7} fill="#f59e0b" stroke="#111" strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={7} fill="#f59e0b" stroke="#F8F9FA" strokeWidth={2} />
       <rect
         x={boxX} y={boxY}
         width={boxW} height={boxH}
         rx={5}
-        fill="#111827"
+        fill="#FFFFFF"
         stroke="#f59e0b"
         strokeWidth={1}
         strokeOpacity={0.7}
@@ -83,7 +83,7 @@ const ForecastDot = (props) => {
       <text
         x={boxX + boxW / 2} y={boxY + 12}
         textAnchor="middle"
-        fill="#9ca3af"
+        fill="#6B7280"
         fontSize={9}
         fontWeight="600"
         letterSpacing="0.06em"
@@ -159,8 +159,8 @@ export default function PriceChart({ history, forecasts }) {
   const DotWithMobile = (props) => <ForecastDot {...props} isMobile={isMobile} />
 
   return (
-    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4" ref={containerRef}>
-      <h2 className="text-white font-semibold text-base mb-4">
+    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm" ref={containerRef}>
+      <h2 className="text-gray-900 font-semibold text-base mb-4">
         Price History &amp; Forecasts
         <span className="text-gray-500 font-normal text-sm ml-2">(90 days + model projections)</span>
       </h2>
@@ -180,7 +180,7 @@ export default function PriceChart({ history, forecasts }) {
               <stop offset="95%" stopColor="#eab308" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E9ECEF" vertical={false} />
           <XAxis
             dataKey="date"
             tick={{ fill: '#6b7280', fontSize: isMobile ? 9 : 11 }}
@@ -205,7 +205,7 @@ export default function PriceChart({ history, forecasts }) {
           {todayDate && (
             <ReferenceLine
               x={todayDate}
-              stroke="#374151"
+              stroke="#D1D5DB"
               strokeDasharray="4 2"
               label={{ value: 'Today', fill: '#6b7280', fontSize: 10, position: 'insideTopLeft' }}
             />
@@ -229,7 +229,7 @@ export default function PriceChart({ history, forecasts }) {
             strokeWidth={2}
             strokeDasharray="6 4"
             dot={<DotWithMobile />}
-            activeDot={{ r: 8, fill: '#fbbf24', stroke: '#111', strokeWidth: 2 }}
+            activeDot={{ r: 8, fill: '#fbbf24', stroke: '#F8F9FA', strokeWidth: 2 }}
             name="Forecast"
             connectNulls={true}
             isAnimationActive={false}
@@ -239,7 +239,7 @@ export default function PriceChart({ history, forecasts }) {
 
       {/* Mobile forecast legend — shown instead of inline annotation boxes */}
       {isMobile && forecastPoints.length > 0 && (
-        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-dark-700 justify-between">
+        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-200 justify-between">
           {forecastPoints.map((fp) => (
             <div key={fp.date} className="flex flex-col items-center">
               <p className="text-gray-500 text-xs leading-tight mb-0.5 whitespace-nowrap">

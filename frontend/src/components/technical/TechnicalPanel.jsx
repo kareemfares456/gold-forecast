@@ -10,7 +10,7 @@ const InfoTooltip = ({ text }) => {
         onMouseLeave={() => setVisible(false)}
         onFocus={() => setVisible(true)}
         onBlur={() => setVisible(false)}
-        className="text-gray-600 hover:text-gray-400 transition-colors leading-none"
+        className="text-gray-400 hover:text-gray-600 transition-colors leading-none"
         aria-label="More info"
       >
         <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
@@ -19,9 +19,9 @@ const InfoTooltip = ({ text }) => {
         </svg>
       </button>
       {visible && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-dark-700 border border-dark-500 rounded-lg p-2.5 text-xs text-gray-300 shadow-xl z-50 pointer-events-none">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white border border-gray-200 rounded-lg p-2.5 text-xs text-gray-700 shadow-lg z-50 pointer-events-none">
           {text}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-dark-500" />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-200" />
         </div>
       )}
     </span>
@@ -30,15 +30,15 @@ const InfoTooltip = ({ text }) => {
 
 const SignalBadge = ({ signal }) => {
   const colors = {
-    bullish: 'bg-green-900 text-green-400 border-green-800',
-    bearish: 'bg-red-900 text-red-400 border-red-800',
-    buy: 'bg-green-900 text-green-400 border-green-800',
-    sell: 'bg-red-900 text-red-400 border-red-800',
-    overbought: 'bg-orange-900 text-orange-400 border-orange-800',
-    oversold: 'bg-blue-900 text-blue-400 border-blue-800',
-    neutral: 'bg-dark-600 text-gray-400 border-dark-500',
-    squeeze: 'bg-yellow-900 text-yellow-400 border-yellow-800',
-    expansion: 'bg-purple-900 text-purple-400 border-purple-800',
+    bullish: 'bg-green-50 text-green-700 border-green-200',
+    bearish: 'bg-red-50 text-red-700 border-red-200',
+    buy: 'bg-green-50 text-green-700 border-green-200',
+    sell: 'bg-red-50 text-red-700 border-red-200',
+    overbought: 'bg-orange-50 text-orange-700 border-orange-200',
+    oversold: 'bg-blue-50 text-blue-700 border-blue-200',
+    neutral: 'bg-gray-100 text-gray-600 border-gray-200',
+    squeeze: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    expansion: 'bg-purple-50 text-purple-700 border-purple-200',
   }
   const cls = colors[signal?.toLowerCase()] || colors.neutral
   return (
@@ -51,7 +51,7 @@ const SignalBadge = ({ signal }) => {
 const RSIGauge = ({ value }) => {
   if (value == null) return <div className="text-gray-500 text-sm">N/A</div>
   const pct = Math.min(100, Math.max(0, value))
-  const color = value > 70 ? '#f97316' : value < 30 ? '#60a5fa' : '#4ade80'
+  const color = value > 70 ? '#f97316' : value < 30 ? '#3b82f6' : '#16a34a'
   return (
     <div>
       <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -59,12 +59,12 @@ const RSIGauge = ({ value }) => {
         <span className="font-bold" style={{ color }}>{value.toFixed(1)}</span>
         <span>70 Overbought</span>
       </div>
-      <div className="h-2 bg-dark-600 rounded-full overflow-hidden relative">
+      <div className="h-2 bg-gray-200 rounded-full overflow-hidden relative">
         {/* Zones */}
         <div className="absolute inset-0 flex">
-          <div className="w-[30%] bg-blue-900 opacity-40" />
-          <div className="w-[40%] bg-green-900 opacity-20" />
-          <div className="w-[30%] bg-orange-900 opacity-40" />
+          <div className="w-[30%] bg-blue-200 opacity-50" />
+          <div className="w-[40%] bg-green-100 opacity-50" />
+          <div className="w-[30%] bg-orange-200 opacity-50" />
         </div>
         {/* Needle */}
         <div
@@ -101,21 +101,21 @@ export default function TechnicalPanel({ data, loading }) {
   ]
 
   const overallColors = {
-    bullish: 'text-green-400',
-    bearish: 'text-red-400',
-    neutral: 'text-gray-400',
+    bullish: 'text-green-600',
+    bearish: 'text-red-600',
+    neutral: 'text-gray-500',
   }
 
   return (
-    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4">
+    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-white font-semibold text-base flex items-center">
+        <h2 className="text-gray-900 font-semibold text-base flex items-center">
           Technical Analysis
           <InfoTooltip text="Price-based indicators that help gauge trend direction, momentum, and whether gold may be overbought or oversold. All signals are combined into the overall rating." />
         </h2>
         <div className="flex items-center gap-2">
           <span className="text-gray-500 text-xs">Overall:</span>
-          <span className={`font-bold uppercase text-sm ${overallColors[signals?.overall] || 'text-gray-400'}`}>
+          <span className={`font-bold uppercase text-sm ${overallColors[signals?.overall] || 'text-gray-500'}`}>
             {signals?.overall || '—'}
           </span>
         </div>
@@ -134,10 +134,10 @@ export default function TechnicalPanel({ data, loading }) {
               const above = current_price > val
               return (
                 <div key={label} className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">{label}</span>
+                  <span className="text-gray-600 text-sm">{label}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-300 font-mono text-sm">{formatCompact(val)}</span>
-                    <span className={`text-xs font-medium ${above ? 'text-green-400' : 'text-red-400'}`}>
+                    <span className="text-gray-700 font-mono text-sm">{formatCompact(val)}</span>
+                    <span className={`text-xs font-medium ${above ? 'text-green-600' : 'text-red-500'}`}>
                       {above ? 'Above ▲' : 'Below ▼'}
                     </span>
                   </div>
@@ -172,8 +172,8 @@ export default function TechnicalPanel({ data, loading }) {
               { label: 'Histogram', val: macd?.histogram },
             ].map(({ label, val }) => (
               <div key={label} className="flex justify-between">
-                <span className="text-gray-400 text-sm">{label}</span>
-                <span className={`font-mono text-sm ${val != null && val > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <span className="text-gray-600 text-sm">{label}</span>
+                <span className={`font-mono text-sm ${val != null && val > 0 ? 'text-green-600' : 'text-red-500'}`}>
                   {val != null ? val.toFixed(2) : '—'}
                 </span>
               </div>
@@ -192,12 +192,12 @@ export default function TechnicalPanel({ data, loading }) {
           </p>
           <div className="space-y-1.5">
             {[
-              { label: 'Upper', val: bb?.upper, color: 'text-red-400' },
-              { label: 'Middle (MA20)', val: bb?.middle, color: 'text-gray-300' },
-              { label: 'Lower', val: bb?.lower, color: 'text-green-400' },
+              { label: 'Upper', val: bb?.upper, color: 'text-red-500' },
+              { label: 'Middle (MA20)', val: bb?.middle, color: 'text-gray-700' },
+              { label: 'Lower', val: bb?.lower, color: 'text-green-600' },
             ].map(({ label, val, color }) => (
               <div key={label} className="flex justify-between">
-                <span className="text-gray-400 text-sm">{label}</span>
+                <span className="text-gray-600 text-sm">{label}</span>
                 <span className={`font-mono text-sm ${color}`}>
                   {val != null ? formatCompact(val) : '—'}
                 </span>
@@ -205,8 +205,8 @@ export default function TechnicalPanel({ data, loading }) {
             ))}
             {bb?.percent_b != null && (
               <div className="flex justify-between">
-                <span className="text-gray-400 text-sm">%B</span>
-                <span className="font-mono text-sm text-gray-300">
+                <span className="text-gray-600 text-sm">%B</span>
+                <span className="font-mono text-sm text-gray-700">
                   {(bb.percent_b * 100).toFixed(1)}%
                 </span>
               </div>

@@ -23,7 +23,7 @@ export default function ForecastGrid({ forecasts, loading }) {
 
   return (
     <div>
-      <h2 className="text-white font-semibold text-base mb-3">
+      <h2 className="text-gray-900 font-semibold text-base mb-3">
         Price Forecasts
         <span className="text-gray-500 font-normal text-sm ml-2">
           {showBreakdown ? 'Click any card to hide breakdown' : 'Click a card to see model breakdown'}

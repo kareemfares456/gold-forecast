@@ -8,8 +8,8 @@
 
 body {
   margin: 0;
-  background-color: #0a0a0a;
-  color: #f3f4f6;
+  background-color: #F8F9FA;
+  color: #1A1A1A;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -25,7 +25,7 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background: linear-gradient(90deg, #E9ECEF 25%, #F1F3F5 50%, #E9ECEF 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
@@ -33,6 +33,6 @@ body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #111; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #444; }
+::-webkit-scrollbar-track { background: #F1F3F5; }
+::-webkit-scrollbar-thumb { background: #CED4DA; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #ADB5BD; }

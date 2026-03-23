@@ -28,9 +28,9 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
       }`}
       onClick={onClick}
     >
-      <div className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-2">{label}</div>
+      <div className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-2">{label}</div>
 
-      <div className="text-gold-400 font-bold text-lg sm:text-2xl font-mono leading-none mb-1 truncate">
+      <div className="text-gold-600 font-bold text-lg sm:text-2xl font-mono leading-none mb-1 truncate">
         {formatCompact(predicted_price)}
       </div>
 
@@ -41,32 +41,32 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
       </div>
 
       <div className="mt-3">
-        <div className="flex justify-between text-gray-600 text-xs mb-1 gap-1">
+        <div className="flex justify-between text-gray-400 text-xs mb-1 gap-1">
           <span className="truncate">{formatCompact(confidence_low)}</span>
           <span className="truncate text-right">{formatCompact(confidence_high)}</span>
         </div>
-        <div className="h-1.5 bg-dark-600 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div className="h-full bg-gold-600 rounded-full" style={{ width: `${fillPct}%` }} />
         </div>
-        <p className="text-gray-600 text-xs mt-1 text-center">95% confidence range</p>
+        <p className="text-gray-400 text-xs mt-1 text-center">95% confidence range</p>
       </div>
 
       {showBreakdown && models.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-dark-700 space-y-1.5">
+        <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
           {models.map(([model, data]) => (
             <div key={model} className="flex justify-between items-center">
-              <span className="text-gray-500 text-xs">
+              <span className="text-gray-600 text-xs">
                 {MODEL_LABELS[model] || model}
-                <span className="text-dark-500 ml-1">
+                <span className="text-gray-400 ml-1">
                   {(data.weight * 100).toFixed(0)}%
                 </span>
               </span>
-              <span className="text-gray-300 font-mono text-xs">{formatCompact(data.price)}</span>
+              <span className="text-gray-700 font-mono text-xs">{formatCompact(data.price)}</span>
             </div>
           ))}
-          <div className="flex justify-between items-center pt-1 border-t border-dark-600">
-            <span className="text-gray-400 text-xs font-semibold">Blended</span>
-            <span className="text-gold-400 font-mono text-xs font-bold">{formatCompact(predicted_price)}</span>
+          <div className="flex justify-between items-center pt-1 border-t border-gray-200">
+            <span className="text-gray-600 text-xs font-semibold">Blended</span>
+            <span className="text-gold-600 font-mono text-xs font-bold">{formatCompact(predicted_price)}</span>
           </div>
         </div>
       )}

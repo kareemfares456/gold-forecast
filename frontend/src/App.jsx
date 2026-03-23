@@ -51,12 +51,12 @@ export default function App() {
           <button
             onClick={refetchForecast}
             disabled={forecastLoading}
-            className="bg-dark-700 hover:bg-dark-600 disabled:opacity-50 border border-dark-500 text-gray-300 text-sm px-6 py-2 rounded-lg transition-colors"
+            className="bg-wix hover:bg-wix-dark disabled:opacity-50 text-white text-sm font-medium px-8 py-2.5 rounded-full transition-colors shadow-sm"
           >
             {forecastLoading ? 'Refreshing forecasts...' : 'Refresh Forecasts'}
           </button>
           {forecastData?.generated_at && (
-            <p className="text-gray-600 text-xs mt-1">
+            <p className="text-gray-400 text-xs mt-1">
               Last generated: {new Date(forecastData.generated_at).toLocaleString()}
             </p>
           )}
