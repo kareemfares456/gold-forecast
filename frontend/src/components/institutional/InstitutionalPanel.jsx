@@ -64,12 +64,10 @@ export default function InstitutionalPanel({ data, loading }) {
         {institutions.map((inst, i) => (
           <div key={i} className="flex items-start justify-between gap-4 py-3">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-gray-900 text-sm font-medium">{inst.institution}</span>
-                {inst.target && (
-                  <span className="text-amber-500 font-mono text-xs">{inst.target}</span>
-                )}
-              </div>
+              <p className="text-gray-900 text-sm font-semibold leading-tight">{inst.institution}</p>
+              {inst.target && (
+                <p className="text-amber-500 font-mono text-xs mt-0.5 mb-1">{inst.target}</p>
+              )}
               <p className="text-gray-600 text-xs leading-relaxed">{inst.rationale}</p>
             </div>
             <div className="flex-shrink-0 pt-0.5">
