@@ -28,14 +28,14 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
-// Distinct color per forecast point (used on mobile dots + legend)
+// Golden gradient per forecast point — lightest (near-term) → deepest (long-term)
 const FORECAST_COLORS = [
-  '#f59e0b', // Tomorrow  — amber
-  '#3b82f6', // 3 Days    — blue
-  '#22c55e', // 1 Week    — green
-  '#a855f7', // 1 Month   — purple
-  '#14b8a6', // 6 Months  — teal
-  '#f43f5e', // 1 Year    — rose
+  '#FDE68A', // Tomorrow  — light gold
+  '#FCD34D', // 3 Days    — soft gold
+  '#FBBF24', // 1 Week    — warm gold
+  '#F59E0B', // 1 Month   — amber
+  '#D97706', // 6 Months  — deep amber
+  '#B45309', // 1 Year    — rich bronze
 ]
 
 // Stagger heights so annotation boxes don't overlap on desktop
