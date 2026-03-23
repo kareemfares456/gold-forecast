@@ -1,13 +1,14 @@
 import anthropic
 import json
+from datetime import date
 from typing import Dict, Any
 
 from app.config import settings
 from app.utils.cache import cache
 from app.services.news_service import get_institutional_headlines
 
-# Cache for 3 hours — refreshed more frequently to stay current
-INSTITUTIONAL_CACHE_TTL = 3 * 3600
+# Cache for 6 hours; cache key includes today's date so data refreshes daily
+INSTITUTIONAL_CACHE_TTL = 6 * 3600
 
 
 def get_institutional_forecasts(current_price: float, change_pct: float) -> Dict[str, Any]:
@@ -18,8 +19,9 @@ def get_institutional_forecasts(current_price: float, change_pct: float) -> Dict
     if not settings.anthropic_api_key:
         return {"available": False, "error": "ANTHROPIC_API_KEY not configured", "institutions": []}
 
+    today = date.today().isoformat()          # e.g. "2026-03-23"
     price_bucket = int(current_price / 50) * 50
-    cache_key = f"institutional_{price_bucket}"
+    cache_key = f"institutional_{price_bucket}_{today}"   # refreshes every day
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
@@ -31,12 +33,13 @@ def get_institutional_forecasts(current_price: float, change_pct: float) -> Dict
         else "No recent institutional headlines found — use your best knowledge of each institution's latest publicly known view."
     )
 
-    prompt = f"""You are a financial research analyst. Gold (XAU/USD) is currently at ${current_price:.2f} ({change_pct:+.2f}% today).
+    prompt = f"""You are a financial research analyst. Today's date is {today}.
+Gold (XAU/USD) is currently at ${current_price:.2f} ({change_pct:+.2f}% today).
 
 {news_block}
 
-Based on the news above AND your knowledge of each institution's most recent published research, list 6 major institutions and their current gold outlook. For each include:
-- Their latest price target or directional view (reference the news where possible)
+Based on the news above AND your knowledge of each institution's most recent published research as of {today}, list 6 major institutions and their current gold outlook. For each include:
+- Their latest price target or directional view with the correct year (reference the news where possible)
 - Their primary rationale in one plain sentence
 - Overall stance: bullish, neutral, or bearish
 
@@ -46,9 +49,9 @@ Respond ONLY with a JSON array, no markdown, no extra text:
 [
   {{
     "institution": "Goldman Sachs",
-    "target": "$3,300 by end-2025",
+    "target": "$3,500 by end-2026",
     "stance": "bullish",
-    "rationale": "Central bank demand and Fed rate cuts support structurally higher prices."
+    "rationale": "Central bank demand and safe-haven flows support structurally higher prices."
   }}
 ]"""
 
