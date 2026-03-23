@@ -9,7 +9,7 @@ backend/app/**/__pycache__/
 
 # Node
 frontend/node_modules/
-frontend/dist/
+# frontend/dist/ — committed so Render (Python runtime) can serve it without Node.js
 
 # IDE
 .vscode/
