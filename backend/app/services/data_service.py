@@ -8,57 +8,26 @@ from typing import Dict, Any, Optional
 from app.config import settings
 from app.utils.cache import cache
 
-# Fallback tickers in priority order
 TICKER_FALLBACKS = ["GC=F", "XAUUSD=X", "GLD"]
 
-# Browser-like session to reduce Yahoo Finance blocks
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/122.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+}
+
+
 def _make_session() -> requests.Session:
     s = requests.Session()
-    s.headers.update({
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/122.0.0.0 Safari/537.36"
-        ),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-    })
+    s.headers.update(_HEADERS)
     return s
 
 
-# ── Stooq fallback (free CSV, no auth, works on cloud IPs) ──────────────────
-_STOOQ_SYMBOLS = ["xauusd", "gc.f"]   # gold spot then gold futures
-
-def _fetch_via_stooq(days: int = 400) -> Optional[pd.DataFrame]:
-    """Fetch OHLCV from stooq.com CSV API — no API key, no IP blocks."""
-    d2 = datetime.now().strftime("%Y%m%d")
-    d1 = (datetime.now() - timedelta(days=days)).strftime("%Y%m%d")
-    for sym in _STOOQ_SYMBOLS:
-        try:
-            url = f"https://stooq.com/q/d/l/?s={sym}&d1={d1}&d2={d2}&i=d"
-            resp = requests.get(url, timeout=15, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-            })
-            if resp.status_code != 200 or "No data" in resp.text or len(resp.text) < 50:
-                continue
-            df = pd.read_csv(StringIO(resp.text), parse_dates=["Date"])
-            df = df.rename(columns={"Date": "date", "Open": "Open", "High": "High",
-                                     "Low": "Low", "Close": "Close", "Volume": "Volume"})
-            df = df.set_index("date")
-            df.index = pd.to_datetime(df.index)
-            df = df.sort_index()
-            if df.empty or len(df) < 5:
-                continue
-            # Volume may be missing from spot data — fill with 0
-            if "Volume" not in df.columns:
-                df["Volume"] = 0
-            return df
-        except Exception:
-            continue
-    return None
-
-
-# ── yfinance methods ─────────────────────────────────────────────────────────
+# ── 1. yfinance (works locally, often blocked on cloud) ─────────────────────
 
 def _fetch_via_ticker(symbol: str, period: str) -> Optional[pd.DataFrame]:
     try:
@@ -76,8 +45,8 @@ def _fetch_via_ticker(symbol: str, period: str) -> Optional[pd.DataFrame]:
 
 def _fetch_via_download(symbol: str, period: str) -> Optional[pd.DataFrame]:
     try:
-        df = yf.download(symbol, period=period, auto_adjust=True, progress=False,
-                         session=_make_session())
+        df = yf.download(symbol, period=period, auto_adjust=True,
+                         progress=False, session=_make_session())
         if df.empty:
             return None
         if isinstance(df.columns, pd.MultiIndex):
@@ -90,22 +59,127 @@ def _fetch_via_download(symbol: str, period: str) -> Optional[pd.DataFrame]:
         return None
 
 
+# ── 2. Direct Yahoo Finance JSON (bypasses yfinance lib issues) ──────────────
+
+def _fetch_via_yahoo_direct(days: int = 400) -> Optional[pd.DataFrame]:
+    """Hit Yahoo Finance chart API directly with cookie+crumb."""
+    session = _make_session()
+    try:
+        # Step 1 — get cookie
+        session.get("https://finance.yahoo.com/quote/GC=F",
+                    timeout=10, allow_redirects=True)
+        # Step 2 — get crumb
+        crumb_r = session.get(
+            "https://query2.finance.yahoo.com/v1/test/getcrumb", timeout=10)
+        crumb = crumb_r.text.strip()
+        if not crumb or "<" in crumb:
+            return None
+        # Step 3 — fetch chart data
+        end_ts = int(datetime.now().timestamp())
+        start_ts = int((datetime.now() - timedelta(days=days)).timestamp())
+        r = session.get(
+            "https://query2.finance.yahoo.com/v8/finance/chart/GC%3DF",
+            params={"period1": start_ts, "period2": end_ts,
+                    "interval": "1d", "crumb": crumb},
+            timeout=20,
+        )
+        data = r.json()
+        result = data["chart"]["result"][0]
+        ts = result["timestamp"]
+        ohlcv = result["indicators"]["quote"][0]
+        adj = result["indicators"].get("adjclose", [{}])[0]
+        closes = adj.get("adjclose") or ohlcv["close"]
+        df = pd.DataFrame({
+            "Open":   ohlcv["open"],
+            "High":   ohlcv["high"],
+            "Low":    ohlcv["low"],
+            "Close":  closes,
+            "Volume": ohlcv.get("volume", [0] * len(ts)),
+        }, index=pd.to_datetime(ts, unit="s"))
+        df.index = df.index.tz_localize(None)
+        df = df.dropna(subset=["Close"])
+        return df if not df.empty else None
+    except Exception:
+        return None
+
+
+# ── 3. Stooq CSV (free, no auth, usually works on cloud) ────────────────────
+
+def _fetch_via_stooq(days: int = 400) -> Optional[pd.DataFrame]:
+    d2 = datetime.now().strftime("%Y%m%d")
+    d1 = (datetime.now() - timedelta(days=days)).strftime("%Y%m%d")
+    for sym in ["xauusd", "gc.f"]:
+        try:
+            url = f"https://stooq.com/q/d/l/?s={sym}&d1={d1}&d2={d2}&i=d"
+            resp = requests.get(url, timeout=15, headers=_HEADERS)
+            if resp.status_code != 200 or len(resp.text) < 50:
+                continue
+            text = resp.text
+            if "No data" in text or "Exceeded" in text:
+                continue
+            df = pd.read_csv(StringIO(text), parse_dates=["Date"])
+            df = df.set_index("Date")
+            df.index = pd.to_datetime(df.index)
+            df = df.sort_index()
+            if "Volume" not in df.columns:
+                df["Volume"] = 0
+            if df.empty or len(df) < 5:
+                continue
+            return df
+        except Exception:
+            continue
+    return None
+
+
+# ── 4. FRED — London Gold Fix (Federal Reserve, zero restrictions) ───────────
+
+def _fetch_via_fred(days: int = 400) -> Optional[pd.DataFrame]:
+    """FRED GOLDPMGBD228NLBM — London Gold Fixing, USD/troy oz.
+    Lags ~1 business day but works from ANY IP with no auth."""
+    try:
+        url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GOLDPMGBD228NLBM"
+        resp = requests.get(url, timeout=20, headers=_HEADERS)
+        if resp.status_code != 200:
+            return None
+        df = pd.read_csv(StringIO(resp.text), parse_dates=["DATE"])
+        df = df.rename(columns={"DATE": "Date", "GOLDPMGBD228NLBM": "Close"})
+        df = df.set_index("Date")
+        df.index = pd.to_datetime(df.index)
+        df = df[df["Close"] != "."].copy()
+        df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
+        df = df.dropna(subset=["Close"])
+        # FRED only has Close — synthesise OHLV as identical for compatibility
+        df["Open"] = df["Close"]
+        df["High"] = df["Close"]
+        df["Low"] = df["Close"]
+        df["Volume"] = 0
+        cutoff = pd.Timestamp.now() - pd.Timedelta(days=days)
+        df = df[df.index >= cutoff]
+        return df if len(df) >= 5 else None
+    except Exception:
+        return None
+
+
+# ── Orchestrator ─────────────────────────────────────────────────────────────
+
 def _fetch_raw(period: str = "1y") -> Optional[pd.DataFrame]:
-    """Try yfinance first, then Stooq as cloud-safe fallback."""
     days = 400 if "1y" in period else 800
 
-    # 1. Try yfinance
-    tickers = [settings.gold_ticker] + [t for t in TICKER_FALLBACKS if t != settings.gold_ticker]
-    for symbol in tickers:
-        df = _fetch_via_ticker(symbol, period)
-        if df is not None and not df.empty:
-            return df
-        df = _fetch_via_download(symbol, period)
-        if df is not None and not df.empty:
-            return df
-
-    # 2. Fallback: Stooq CSV (works on cloud IPs, no key needed)
-    return _fetch_via_stooq(days=days)
+    # Try each source in order — first success wins
+    for fn in [
+        lambda: _fetch_via_ticker(settings.gold_ticker, period),
+        lambda: _fetch_via_download(settings.gold_ticker, period),
+        lambda: _fetch_via_yahoo_direct(days),
+        lambda: _fetch_via_stooq(days),
+        lambda: _fetch_via_fred(days),
+    ]:
+        try:
+            df = fn()
+            if df is not None and not df.empty:
+                return df
+        except Exception:
+            continue
+    return None
 
 
 def get_ohlcv_df(period: str = "1y") -> Optional[pd.DataFrame]:
