@@ -34,13 +34,13 @@ export default function App() {
           loading={forecastLoading}
         />
 
-        {/* Technical + AI side by side on large screens */}
+        {/* AI + Technical side by side on large screens */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TechnicalPanel data={technicalData} loading={technicalLoading} />
           <AIAnalysis
             data={forecastData?.ai_analysis}
             loading={forecastLoading}
           />
+          <TechnicalPanel data={technicalData} loading={technicalLoading} />
         </div>
 
         {/* Institutional forecasts — full width */}
