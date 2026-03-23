@@ -1,7 +1,8 @@
 import yfinance as yf
 import pandas as pd
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from io import StringIO
 from typing import Dict, Any, Optional
 
 from app.config import settings
@@ -10,7 +11,7 @@ from app.utils.cache import cache
 # Fallback tickers in priority order
 TICKER_FALLBACKS = ["GC=F", "XAUUSD=X", "GLD"]
 
-# Custom session with browser-like headers to bypass Yahoo Finance cloud IP blocks
+# Browser-like session to reduce Yahoo Finance blocks
 def _make_session() -> requests.Session:
     s = requests.Session()
     s.headers.update({
@@ -25,8 +26,41 @@ def _make_session() -> requests.Session:
     return s
 
 
+# ── Stooq fallback (free CSV, no auth, works on cloud IPs) ──────────────────
+_STOOQ_SYMBOLS = ["xauusd", "gc.f"]   # gold spot then gold futures
+
+def _fetch_via_stooq(days: int = 400) -> Optional[pd.DataFrame]:
+    """Fetch OHLCV from stooq.com CSV API — no API key, no IP blocks."""
+    d2 = datetime.now().strftime("%Y%m%d")
+    d1 = (datetime.now() - timedelta(days=days)).strftime("%Y%m%d")
+    for sym in _STOOQ_SYMBOLS:
+        try:
+            url = f"https://stooq.com/q/d/l/?s={sym}&d1={d1}&d2={d2}&i=d"
+            resp = requests.get(url, timeout=15, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            })
+            if resp.status_code != 200 or "No data" in resp.text or len(resp.text) < 50:
+                continue
+            df = pd.read_csv(StringIO(resp.text), parse_dates=["Date"])
+            df = df.rename(columns={"Date": "date", "Open": "Open", "High": "High",
+                                     "Low": "Low", "Close": "Close", "Volume": "Volume"})
+            df = df.set_index("date")
+            df.index = pd.to_datetime(df.index)
+            df = df.sort_index()
+            if df.empty or len(df) < 5:
+                continue
+            # Volume may be missing from spot data — fill with 0
+            if "Volume" not in df.columns:
+                df["Volume"] = 0
+            return df
+        except Exception:
+            continue
+    return None
+
+
+# ── yfinance methods ─────────────────────────────────────────────────────────
+
 def _fetch_via_ticker(symbol: str, period: str) -> Optional[pd.DataFrame]:
-    """Try yf.Ticker().history() approach."""
     try:
         t = yf.Ticker(symbol, session=_make_session())
         df = t.history(period=period, auto_adjust=True)
@@ -41,7 +75,6 @@ def _fetch_via_ticker(symbol: str, period: str) -> Optional[pd.DataFrame]:
 
 
 def _fetch_via_download(symbol: str, period: str) -> Optional[pd.DataFrame]:
-    """Try yf.download() approach."""
     try:
         df = yf.download(symbol, period=period, auto_adjust=True, progress=False,
                          session=_make_session())
@@ -58,7 +91,10 @@ def _fetch_via_download(symbol: str, period: str) -> Optional[pd.DataFrame]:
 
 
 def _fetch_raw(period: str = "1y") -> Optional[pd.DataFrame]:
-    """Try multiple tickers and methods until one succeeds."""
+    """Try yfinance first, then Stooq as cloud-safe fallback."""
+    days = 400 if "1y" in period else 800
+
+    # 1. Try yfinance
     tickers = [settings.gold_ticker] + [t for t in TICKER_FALLBACKS if t != settings.gold_ticker]
     for symbol in tickers:
         df = _fetch_via_ticker(symbol, period)
@@ -67,11 +103,12 @@ def _fetch_raw(period: str = "1y") -> Optional[pd.DataFrame]:
         df = _fetch_via_download(symbol, period)
         if df is not None and not df.empty:
             return df
-    return None
+
+    # 2. Fallback: Stooq CSV (works on cloud IPs, no key needed)
+    return _fetch_via_stooq(days=days)
 
 
 def get_ohlcv_df(period: str = "1y") -> Optional[pd.DataFrame]:
-    """Return cached OHLCV DataFrame."""
     cache_key = f"ohlcv_{settings.gold_ticker}_{period}"
     cached = cache.get(cache_key)
     if cached is not None:
@@ -83,7 +120,6 @@ def get_ohlcv_df(period: str = "1y") -> Optional[pd.DataFrame]:
 
 
 def get_current_price() -> Dict[str, Any]:
-    """Return live price info plus recent history for the header."""
     cache_key = f"current_price_{settings.gold_ticker}"
     cached = cache.get(cache_key)
     if cached is not None:
@@ -135,7 +171,6 @@ def get_current_price() -> Dict[str, Any]:
 
 
 def get_history_df(days: int = 365) -> Optional[pd.DataFrame]:
-    """Return last N calendar days of OHLCV data."""
     df = get_ohlcv_df("2y")
     if df is None:
         return None
