@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+import requests
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 
@@ -9,11 +10,25 @@ from app.utils.cache import cache
 # Fallback tickers in priority order
 TICKER_FALLBACKS = ["GC=F", "XAUUSD=X", "GLD"]
 
+# Custom session with browser-like headers to bypass Yahoo Finance cloud IP blocks
+def _make_session() -> requests.Session:
+    s = requests.Session()
+    s.headers.update({
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/122.0.0.0 Safari/537.36"
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+    })
+    return s
+
 
 def _fetch_via_ticker(symbol: str, period: str) -> Optional[pd.DataFrame]:
     """Try yf.Ticker().history() approach."""
     try:
-        t = yf.Ticker(symbol)
+        t = yf.Ticker(symbol, session=_make_session())
         df = t.history(period=period, auto_adjust=True)
         if df.empty:
             return None
@@ -28,7 +43,8 @@ def _fetch_via_ticker(symbol: str, period: str) -> Optional[pd.DataFrame]:
 def _fetch_via_download(symbol: str, period: str) -> Optional[pd.DataFrame]:
     """Try yf.download() approach."""
     try:
-        df = yf.download(symbol, period=period, auto_adjust=True, progress=False)
+        df = yf.download(symbol, period=period, auto_adjust=True, progress=False,
+                         session=_make_session())
         if df.empty:
             return None
         if isinstance(df.columns, pd.MultiIndex):

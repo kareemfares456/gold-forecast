@@ -47,7 +47,11 @@
       "Bash(git config --global user.email)",
       "Bash(git config --global user.name)",
       "Bash(ssh -T git@github.com)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(git add -f frontend/dist)",
+      "Bash(git config user.email \"kfares@users.noreply.github.com\")",
+      "Bash(git config user.name \"Kareem Fares\")",
+      "WebFetch(domain:gold-forecast.onrender.com)"
     ]
   }
 }
