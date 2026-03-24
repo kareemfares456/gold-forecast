@@ -23,28 +23,33 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Price chart */}
-        <PriceChart
-          history={priceData?.history}
-          forecasts={forecastData?.forecasts}
-        />
+        <section aria-label="Price Chart">
+          <PriceChart
+            history={priceData?.history}
+            forecasts={forecastData?.forecasts}
+          />
+        </section>
 
         {/* Forecast cards */}
         <ForecastGrid
           forecasts={forecastData?.forecasts}
           loading={forecastLoading}
+          generatedAt={forecastData?.generated_at}
         />
 
         {/* AI + Technical side by side on large screens */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section aria-label="Market Analysis" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AIAnalysis
             data={forecastData?.ai_analysis}
             loading={forecastLoading}
           />
           <TechnicalPanel data={technicalData} loading={technicalLoading} />
-        </div>
+        </section>
 
         {/* Institutional forecasts — full width */}
-        <InstitutionalPanel data={institutionalData} loading={institutionalLoading} />
+        <section aria-label="Institutional Forecasts">
+          <InstitutionalPanel data={institutionalData} loading={institutionalLoading} />
+        </section>
 
         {/* Refetch forecast button */}
         <div className="text-center">

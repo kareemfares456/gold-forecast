@@ -172,12 +172,14 @@ export default function PriceChart({ history, forecasts }) {
   const DotWithMobile = (props) => <ForecastDot {...props} isMobile={isMobile} />
 
   return (
-    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm" ref={containerRef}>
+    <figure className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm" ref={containerRef}>
       <h2 className="text-gray-900 font-semibold text-base mb-4">
         Price History &amp; Forecasts
         <span className="text-gray-500 font-normal text-sm ml-2">(90 days + model projections)</span>
       </h2>
+      <figcaption className="sr-only">XAU/USD gold price history over the past 90 days with AI-generated price forecasts</figcaption>
 
+      <div role="img" aria-label="Gold price history and forecast chart">
       <ResponsiveContainer width="100%" height={isMobile ? 280 : 400}>
         <ComposedChart
           data={combined}
@@ -249,6 +251,7 @@ export default function PriceChart({ history, forecasts }) {
           />
         </ComposedChart>
       </ResponsiveContainer>
+      </div>
 
       {/* Mobile forecast legend — shown instead of inline annotation boxes */}
       {isMobile && forecastPoints.length > 0 && (
@@ -271,6 +274,6 @@ export default function PriceChart({ history, forecasts }) {
           })}
         </div>
       )}
-    </div>
+    </figure>
   )
 }
