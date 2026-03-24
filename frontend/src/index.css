@@ -39,7 +39,7 @@ body {
 
 /* RTL support */
 [dir="rtl"] body {
-  font-family: 'Segoe UI', 'Tahoma', system-ui, sans-serif;
+  font-family: 'Tajawal', system-ui, sans-serif;
 }
 
 [dir="rtl"] .ml-1 { margin-left: 0; margin-right: 0.25rem; }
