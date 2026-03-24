@@ -141,11 +141,63 @@
         </nav>
       </header>
       <main>
-        <section id="chart"><h2>Price History &amp; Forecasts</h2></section>
-        <section id="forecast-grid"><h2>Gold Price Forecast Cards</h2></section>
-        <section id="ai-analysis"><h2>AI Market Analysis</h2></section>
-        <section id="technical"><h2>Technical Analysis – RSI, MACD &amp; Bollinger Bands</h2></section>
-        <section id="institutional"><h2>Institutional Forecasts – Goldman Sachs, JPMorgan &amp; More</h2></section>
+        <section id="chart">
+          <h2>Gold Price History &amp; Forecasts</h2>
+          <p>
+            Gold Price Forecasted tracks the live XAU/USD price and displays 90 days of historical price data
+            alongside AI-generated predictions for tomorrow, next week, next month, 6 months, and 1 year ahead.
+            The forecast is updated in real time and blends three independent models — ARIMA time-series analysis,
+            trend regression, and a technical analysis model — into a single weighted ensemble. This multi-model
+            approach reduces the risk of any single model's bias and provides a more balanced gold price outlook.
+          </p>
+        </section>
+
+        <section id="forecast-grid">
+          <h2>Gold Price Forecast Cards</h2>
+          <p>
+            Each forecast card shows the predicted XAU/USD price for a specific time horizon along with a
+            95% confidence interval, indicating the likely range the gold price could fall within. A breakdown
+            of each model's individual contribution is also available, letting you see how ARIMA, trend, and
+            technical signals each influence the final blended forecast. Gold price predictions are speculative
+            and should not be treated as financial advice.
+          </p>
+        </section>
+
+        <section id="ai-analysis">
+          <h2>AI Market Analysis – Powered by Claude</h2>
+          <p>
+            The AI market analysis section uses Claude, Anthropic's large language model, to generate a concise
+            narrative gold market outlook grounded in the latest news headlines. The analysis covers five time
+            horizons — today, tomorrow, next week, next month, and next year — and explains the specific macro
+            factors, geopolitical events, and market signals driving each outlook. The overall market sentiment
+            (bullish, bearish, or neutral) is determined by combining technical indicator data with real-time news.
+          </p>
+        </section>
+
+        <section id="technical">
+          <h2>Technical Analysis – RSI, MACD &amp; Bollinger Bands</h2>
+          <p>
+            The technical analysis panel displays key momentum and trend indicators for XAU/USD gold futures.
+            The Relative Strength Index (RSI-14) measures overbought and oversold conditions on a 0–100 scale:
+            readings below 30 signal a potential bounce, while readings above 70 suggest a pullback may follow.
+            The MACD (12, 26, 9) tracks momentum by comparing two exponential moving averages. Bollinger Bands
+            (20-day, 2 standard deviations) show price volatility — the %B indicator reveals where the current
+            price sits within the band range. Moving averages at 20, 50, and 200 days provide trend direction.
+          </p>
+        </section>
+
+        <section id="institutional">
+          <h2>Institutional Forecasts – Goldman Sachs, JPMorgan &amp; More</h2>
+          <p>
+            The institutional forecasts section aggregates the current gold price outlooks from the world's
+            leading financial institutions, including Goldman Sachs, JPMorgan, Citigroup, UBS, Bank of America,
+            and the World Gold Council. Each entry shows the institution's latest price target, their directional
+            stance (bullish, neutral, or bearish), and a one-sentence rationale drawn from their most recent
+            published research and current market conditions. Institutional forecasts are refreshed daily and
+            grounded in the latest market news, giving you a quick view of how major banks see gold price
+            trends developing through 2026 and beyond.
+          </p>
+        </section>
       </main>
     </noscript>
     <div id="root"></div>
