@@ -1,5 +1,6 @@
 import anthropic
 import json
+import re
 from datetime import date
 from typing import Dict, Any
 
@@ -62,10 +63,13 @@ Respond ONLY with a JSON array, no markdown, no extra text:
 ]"""
 
     try:
+        # Arabic rationale sentences use more tokens — allocate extra budget
+        max_tokens = 1200 if lang == "ar" else 700
+
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model="claude-opus-4-6",
-            max_tokens=600,
+            max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )
         text = message.content[0].text.strip()
@@ -75,7 +79,15 @@ Respond ONLY with a JSON array, no markdown, no extra text:
             lines = text.split("\n")
             text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
 
-        institutions = json.loads(text)
+        # Robust JSON extraction: find the outermost [...] even if there is extra text
+        try:
+            institutions = json.loads(text)
+        except json.JSONDecodeError:
+            match = re.search(r'\[.*\]', text, re.DOTALL)
+            if match:
+                institutions = json.loads(match.group())
+            else:
+                raise
 
         if lang == "ar":
             note = (
