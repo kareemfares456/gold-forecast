@@ -31,6 +31,7 @@ const InfoTooltip = ({ text }) => {
 }
 
 const SignalBadge = ({ signal }) => {
+  const { tLabel } = useLanguage()
   const colors = {
     bullish: 'bg-green-50 text-green-700 border-green-200',
     bearish: 'bg-red-50 text-red-700 border-red-200',
@@ -45,7 +46,7 @@ const SignalBadge = ({ signal }) => {
   const cls = colors[signal?.toLowerCase()] || colors.neutral
   return (
     <span className={`text-xs font-semibold px-2 py-0.5 rounded border uppercase ${cls}`}>
-      {signal || 'N/A'}
+      {tLabel(signal) || 'N/A'}
     </span>
   )
 }

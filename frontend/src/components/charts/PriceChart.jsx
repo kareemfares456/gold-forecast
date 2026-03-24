@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import { formatCompact } from '../../utils/formatters'
 import { useLanguage } from '../../i18n/LanguageContext'
+import { translations } from '../../i18n/translations'
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -63,7 +64,7 @@ const ForecastDot = (props) => {
     )
   }
 
-  const label = payload.date.replace('+', '')
+  const label = payload.displayLabel ?? payload.date.replace('+', '')
   const price = formatCompact(payload.forecast)
   const offset = LABEL_OFFSETS[payload.colorIndex % LABEL_OFFSETS.length] || { dx: -38, dy: -30 }
 
@@ -117,7 +118,8 @@ const ForecastDot = (props) => {
 }
 
 export default function PriceChart({ history, forecasts }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
+  const labelMap = translations[lang]?.labels ?? {}
   const containerRef = useRef(null)
   const [containerWidth, setContainerWidth] = useState(800)
 
@@ -136,6 +138,7 @@ export default function PriceChart({ history, forecasts }) {
 
   const forecastPoints = (forecasts || []).map((f, i) => ({
     date: `+${f.label}`,
+    displayLabel: labelMap[f.label] ?? f.label,
     forecast: f.predicted_price,
     colorIndex: i,
   }))
@@ -264,7 +267,7 @@ export default function PriceChart({ history, forecasts }) {
                 <div className="flex items-center gap-1 mb-0.5">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
                   <p className="text-gray-500 text-xs leading-tight whitespace-nowrap">
-                    {fp.date.replace('+', '')}
+                    {fp.displayLabel ?? fp.date.replace('+', '')}
                   </p>
                 </div>
                 <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>

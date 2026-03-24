@@ -2,7 +2,7 @@ import { formatCompact, formatPct, directionColor } from '../../utils/formatters
 import { useLanguage } from '../../i18n/LanguageContext'
 
 export default function ForecastCard({ forecast, showBreakdown, onClick }) {
-  const { t } = useLanguage()
+  const { t, tLabel } = useLanguage()
   const {
     label,
     predicted_price,
@@ -29,7 +29,7 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
       onClick={onClick}
       aria-label={`Gold price forecast: ${label}`}
     >
-      <div className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-2">{label}</div>
+      <div className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-2">{tLabel(label)}</div>
 
       <div className="text-gold-600 font-bold text-lg sm:text-2xl font-mono leading-none mb-1 truncate">
         {formatCompact(predicted_price)}
