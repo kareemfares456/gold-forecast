@@ -1,6 +1,7 @@
 import { useLanguage } from '../../i18n/LanguageContext'
 
 const StanceBadge = ({ stance }) => {
+  const { tLabel } = useLanguage()
   const styles = {
     bullish: 'bg-green-50 text-green-700 border-green-200',
     bearish: 'bg-red-50 text-red-700 border-red-200',
@@ -9,7 +10,7 @@ const StanceBadge = ({ stance }) => {
   const cls = styles[stance?.toLowerCase()] || styles.neutral
   return (
     <span className={`text-xs font-semibold px-2 py-0.5 rounded border uppercase ${cls}`}>
-      {stance || 'N/A'}
+      {tLabel(stance) || 'N/A'}
     </span>
   )
 }

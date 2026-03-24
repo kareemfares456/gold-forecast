@@ -37,8 +37,17 @@ export function LanguageProvider({ children }) {
     [lang]
   )
 
+  /** Translate a dynamic API string (e.g. signal names, forecast labels) */
+  const tLabel = useCallback(
+    (str) => {
+      if (!str) return str
+      return translations[lang]?.labels?.[str] ?? str
+    },
+    [lang]
+  )
+
   return (
-    <LanguageContext.Provider value={{ lang, isRTL, toggleLang, t }}>
+    <LanguageContext.Provider value={{ lang, isRTL, toggleLang, t, tLabel }}>
       {children}
     </LanguageContext.Provider>
   )

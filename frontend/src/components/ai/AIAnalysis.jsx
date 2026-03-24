@@ -7,7 +7,7 @@ const sentimentColors = {
 }
 
 export default function AIAnalysis({ data, loading }) {
-  const { t } = useLanguage()
+  const { t, tLabel } = useLanguage()
 
   if (loading) {
     return (
@@ -54,7 +54,7 @@ export default function AIAnalysis({ data, loading }) {
           {analysis.map((bullet, i) => (
             <li key={i} className="flex items-start gap-3 text-sm text-gray-700 leading-relaxed">
               <span className="text-gold-600 font-semibold text-xs mt-0.5 w-20 flex-shrink-0">
-                {bullet.label ?? bullet}
+                {tLabel(bullet.label ?? bullet)}
               </span>
               <span>{bullet.text ?? ''}</span>
             </li>
