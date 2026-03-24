@@ -19,8 +19,8 @@ const InfoTooltip = ({ text }) => {
         </svg>
       </button>
       {visible && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white border border-gray-200 rounded-lg p-2.5 text-xs text-gray-700 shadow-lg z-50 pointer-events-none">
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-200" />
+        <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg p-2.5 text-xs text-gray-700 shadow-lg z-50 pointer-events-none" style={{ right: 'auto', maxWidth: 'min(14rem, calc(100vw - 1rem))' }}>
+          <div className="absolute bottom-full left-3 border-4 border-transparent border-b-gray-200" />
           {text}
         </div>
       )}
