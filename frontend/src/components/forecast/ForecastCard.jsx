@@ -22,11 +22,12 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
   const models = model_contributions ? Object.entries(model_contributions) : []
 
   return (
-    <div
+    <article
       className={`bg-dark-800 border rounded-xl p-4 cursor-pointer transition-colors ${
         showBreakdown ? 'border-gold-500' : 'border-dark-600 hover:border-gold-700'
       }`}
       onClick={onClick}
+      aria-label={`Gold price forecast: ${label}`}
     >
       <div className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-2">{label}</div>
 
@@ -70,6 +71,6 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
           </div>
         </div>
       )}
-    </div>
+    </article>
   )
 }
