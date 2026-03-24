@@ -12,4 +12,16 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    minify: 'esbuild',
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        // Ensure deterministic, content-hashed filenames
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
+  },
 })

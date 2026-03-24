@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary SEO -->
-    <title>Gold Price Forecast | AI-Powered XAU/USD Predictions &amp; Analysis</title>
-    <meta name="description" content="Real-time gold price forecasts powered by AI and technical analysis. Get XAU/USD price predictions, MACD, RSI, Bollinger Bands, and institutional outlooks from Goldman Sachs, JPMorgan, and more." />
-    <meta name="keywords" content="gold price forecast, XAU USD prediction, gold price today, gold technical analysis, gold price 2026, gold futures forecast" />
+    <title>Gold Price Forecast Today | AI-Powered XAU/USD Predictions &amp; Technical Analysis</title>
+    <meta name="description" content="Gold price forecast &amp; XAU/USD predictions powered by AI. Technical analysis: RSI, MACD &amp; Bollinger Bands. Institutional views from Goldman Sachs, JPMorgan." />
+    <meta name="keywords" content="gold price forecast, gold price today, XAU USD prediction, gold technical analysis, gold price 2026, gold futures forecast, RSI MACD gold" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Gold Price Forecasted" />
     <link rel="canonical" href="https://goldpriceforecasted.com/" />
@@ -28,10 +28,7 @@
     <meta name="twitter:description" content="Real-time gold price forecasts powered by AI and technical analysis." />
     <meta name="twitter:image" content="https://goldpriceforecasted.com/og-image.png" />
 
-    <!-- Tajawal font for Arabic -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+    <!-- Tajawal font for Arabic — loaded dynamically by LanguageContext when lang=ar -->
 
     <!-- Theme / PWA -->
     <meta name="theme-color" content="#0a0a0a" />
@@ -129,6 +126,28 @@
     </script>
   </head>
   <body>
+    <!-- Static semantic content for non-JS crawlers. React renders the full app into #root. -->
+    <noscript>
+      <header>
+        <h1>Gold Price Forecast Today – AI-Powered XAU/USD Predictions &amp; Technical Analysis</h1>
+        <nav aria-label="Page sections">
+          <ul>
+            <li><a href="#chart">Price History &amp; Forecasts</a></li>
+            <li><a href="#forecast-grid">Price Forecast Cards</a></li>
+            <li><a href="#ai-analysis">AI Market Analysis</a></li>
+            <li><a href="#technical">Technical Analysis</a></li>
+            <li><a href="#institutional">Institutional Forecasts</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <section id="chart"><h2>Price History &amp; Forecasts</h2></section>
+        <section id="forecast-grid"><h2>Gold Price Forecast Cards</h2></section>
+        <section id="ai-analysis"><h2>AI Market Analysis</h2></section>
+        <section id="technical"><h2>Technical Analysis – RSI, MACD &amp; Bollinger Bands</h2></section>
+        <section id="institutional"><h2>Institutional Forecasts – Goldman Sachs, JPMorgan &amp; More</h2></section>
+      </main>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

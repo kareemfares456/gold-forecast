@@ -25,7 +25,7 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Price chart */}
-        <section aria-label={t('app.priceChart')}>
+        <section id="chart" aria-label={t('app.priceChart')}>
           <PriceChart
             history={priceData?.history}
             forecasts={forecastData?.forecasts}
@@ -33,23 +33,27 @@ export default function App() {
         </section>
 
         {/* Forecast cards */}
+        <div id="forecast-grid">
         <ForecastGrid
           forecasts={forecastData?.forecasts}
           loading={forecastLoading}
           generatedAt={forecastData?.generated_at}
         />
+        </div>
 
         {/* AI + Technical side by side on large screens */}
-        <section aria-label={t('app.marketAnalysis')} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section id="ai-analysis" aria-label={t('app.marketAnalysis')} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AIAnalysis
             data={forecastData?.ai_analysis}
             loading={forecastLoading}
           />
-          <TechnicalPanel data={technicalData} loading={technicalLoading} />
+          <div id="technical">
+            <TechnicalPanel data={technicalData} loading={technicalLoading} />
+          </div>
         </section>
 
         {/* Institutional forecasts — full width */}
-        <section aria-label={t('app.institutionalForecasts')}>
+        <section id="institutional" aria-label={t('app.institutionalForecasts')}>
           <InstitutionalPanel data={institutionalData} loading={institutionalLoading} />
         </section>
 
