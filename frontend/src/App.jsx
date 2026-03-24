@@ -10,12 +10,14 @@ import { useGoldPrice } from './hooks/useGoldPrice'
 import { useForecast } from './hooks/useForecast'
 import { useTechnical } from './hooks/useTechnical'
 import { useInstitutional } from './hooks/useInstitutional'
+import { useLanguage } from './i18n/LanguageContext'
 
 export default function App() {
   const { data: priceData, loading: priceLoading, refetch: refetchPrice, lastUpdatedAt } = useGoldPrice()
   const { data: forecastData, loading: forecastLoading, refetch: refetchForecast } = useForecast()
   const { data: technicalData, loading: technicalLoading } = useTechnical()
   const { data: institutionalData, loading: institutionalLoading } = useInstitutional()
+  const { t } = useLanguage()
 
   return (
     <div className="min-h-screen bg-dark-900">
@@ -23,7 +25,7 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Price chart */}
-        <section aria-label="Price Chart">
+        <section aria-label={t('app.priceChart')}>
           <PriceChart
             history={priceData?.history}
             forecasts={forecastData?.forecasts}
@@ -38,7 +40,7 @@ export default function App() {
         />
 
         {/* AI + Technical side by side on large screens */}
-        <section aria-label="Market Analysis" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section aria-label={t('app.marketAnalysis')} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AIAnalysis
             data={forecastData?.ai_analysis}
             loading={forecastLoading}
@@ -47,7 +49,7 @@ export default function App() {
         </section>
 
         {/* Institutional forecasts — full width */}
-        <section aria-label="Institutional Forecasts">
+        <section aria-label={t('app.institutionalForecasts')}>
           <InstitutionalPanel data={institutionalData} loading={institutionalLoading} />
         </section>
 
@@ -58,11 +60,11 @@ export default function App() {
             disabled={forecastLoading}
             className="bg-wix hover:bg-wix-dark disabled:opacity-50 text-white text-sm font-medium px-8 py-2.5 rounded-full transition-colors shadow-sm"
           >
-            {forecastLoading ? 'Refreshing forecasts...' : 'Refresh Forecasts'}
+            {forecastLoading ? t('app.refreshing') : t('app.refresh')}
           </button>
           {forecastData?.generated_at && (
             <p className="text-gray-400 text-xs mt-1">
-              Last generated: {new Date(forecastData.generated_at).toLocaleString()}
+              {t('app.lastGenerated', { time: new Date(forecastData.generated_at).toLocaleString() })}
             </p>
           )}
         </div>

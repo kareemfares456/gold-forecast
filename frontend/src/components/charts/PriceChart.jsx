@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { formatCompact } from '../../utils/formatters'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -116,6 +117,7 @@ const ForecastDot = (props) => {
 }
 
 export default function PriceChart({ history, forecasts }) {
+  const { t } = useLanguage()
   const containerRef = useRef(null)
   const [containerWidth, setContainerWidth] = useState(800)
 
@@ -168,18 +170,17 @@ export default function PriceChart({ history, forecasts }) {
 
   const todayDate = historyData[historyData.length - 1]?.date
 
-  // On mobile, inject isMobile into dot via a closure wrapper
   const DotWithMobile = (props) => <ForecastDot {...props} isMobile={isMobile} />
 
   return (
     <figure className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm" ref={containerRef}>
       <h2 className="text-gray-900 font-semibold text-base mb-4">
-        Price History &amp; Forecasts
-        <span className="text-gray-500 font-normal text-sm ml-2">(90 days + model projections)</span>
+        {t('chart.title')}
+        <span className="text-gray-500 font-normal text-sm ml-2">{t('chart.subtitle')}</span>
       </h2>
-      <figcaption className="sr-only">XAU/USD gold price history over the past 90 days with AI-generated price forecasts</figcaption>
+      <figcaption className="sr-only">{t('chart.srCaption')}</figcaption>
 
-      <div role="img" aria-label="Gold price history and forecast chart">
+      <div role="img" aria-label={t('chart.srLabel')}>
       <ResponsiveContainer width="100%" height={isMobile ? 280 : 400}>
         <ComposedChart
           data={combined}
@@ -222,7 +223,7 @@ export default function PriceChart({ history, forecasts }) {
               x={todayDate}
               stroke="#D1D5DB"
               strokeDasharray="4 2"
-              label={{ value: 'Today', fill: '#6b7280', fontSize: 10, position: 'insideTopLeft' }}
+              label={{ value: t('chart.today'), fill: '#6b7280', fontSize: 10, position: 'insideTopLeft' }}
             />
           )}
           <Area
@@ -233,7 +234,7 @@ export default function PriceChart({ history, forecasts }) {
             fill="url(#goldGradient)"
             dot={false}
             activeDot={{ r: 4, fill: '#eab308' }}
-            name="Close"
+            name={t('chart.close')}
             connectNulls={false}
             isAnimationActive={false}
           />
@@ -245,7 +246,7 @@ export default function PriceChart({ history, forecasts }) {
             strokeDasharray="6 4"
             dot={<DotWithMobile />}
             activeDot={{ r: 8, fill: '#fbbf24', stroke: '#F8F9FA', strokeWidth: 2 }}
-            name="Forecast"
+            name={t('chart.forecast')}
             connectNulls={true}
             isAnimationActive={false}
           />
@@ -253,7 +254,7 @@ export default function PriceChart({ history, forecasts }) {
       </ResponsiveContainer>
       </div>
 
-      {/* Mobile forecast legend — shown instead of inline annotation boxes */}
+      {/* Mobile forecast legend */}
       {isMobile && forecastPoints.length > 0 && (
         <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-200 justify-between">
           {forecastPoints.map((fp, i) => {
