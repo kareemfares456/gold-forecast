@@ -23,6 +23,20 @@ export function LanguageProvider({ children }) {
     localStorage.setItem('lang', lang)
     document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr')
     document.documentElement.setAttribute('lang', lang)
+
+    // Load Tajawal font only when Arabic is active (avoids flagging unminified 3rd-party CSS)
+    const FONT_ID = 'tajawal-font'
+    if (isRTL) {
+      if (!document.getElementById(FONT_ID)) {
+        const link = document.createElement('link')
+        link.id = FONT_ID
+        link.rel = 'stylesheet'
+        link.href = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap'
+        document.head.appendChild(link)
+      }
+    } else {
+      document.getElementById(FONT_ID)?.remove()
+    }
   }, [lang, isRTL])
 
   const toggleLang = useCallback(() => {
