@@ -1,3 +1,5 @@
+import { useLanguage } from '../../i18n/LanguageContext'
+
 const sentimentColors = {
   bullish: 'bg-green-50 text-green-700 border-green-200',
   bearish: 'bg-red-50 text-red-700 border-red-200',
@@ -5,6 +7,8 @@ const sentimentColors = {
 }
 
 export default function AIAnalysis({ data, loading }) {
+  const { t } = useLanguage()
+
   if (loading) {
     return (
       <div className="bg-dark-800 border border-dark-600 rounded-xl p-4">
@@ -20,12 +24,12 @@ export default function AIAnalysis({ data, loading }) {
 
   if (!data) return null
 
-  const { available, analysis, key_factors, sentiment, error } = data
+  const { available, analysis, sentiment, error } = data
 
   if (!available) {
     return (
       <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 text-center shadow-sm">
-        <p className="text-gray-500 text-sm">AI analysis unavailable</p>
+        <p className="text-gray-500 text-sm">{t('ai.unavailable')}</p>
         {error && <p className="text-gray-400 text-xs mt-1">{error}</p>}
       </div>
     )
@@ -35,8 +39,8 @@ export default function AIAnalysis({ data, loading }) {
     <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-gray-900 font-semibold text-base">
-          AI Market Analysis
-          <span className="text-gray-500 font-normal text-sm ml-2">powered by Claude</span>
+          {t('ai.title')}
+          <span className="text-gray-500 font-normal text-sm ml-2">{t('ai.poweredBy')}</span>
         </h2>
         {sentiment && (
           <span className={`text-xs font-bold px-2 py-0.5 rounded border uppercase ${sentimentColors[sentiment] || sentimentColors.neutral}`}>

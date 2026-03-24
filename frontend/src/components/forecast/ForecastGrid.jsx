@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import ForecastCard from './ForecastCard'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 export default function ForecastGrid({ forecasts, loading, generatedAt }) {
+  const { t } = useLanguage()
   const [showBreakdown, setShowBreakdown] = useState(false)
 
   if (loading) {
@@ -22,16 +24,16 @@ export default function ForecastGrid({ forecasts, loading, generatedAt }) {
   if (!forecasts?.length) return null
 
   return (
-    <section aria-label="Gold Price Forecasts">
+    <section aria-label={t('forecastGrid.ariaLabel')}>
       <h2 className="text-gray-900 font-semibold text-base mb-1">
-        Price Forecasts
+        {t('forecastGrid.title')}
         <span className="text-gray-500 font-normal text-sm ml-2">
-          {showBreakdown ? 'Click any card to hide breakdown' : 'Click a card to see model breakdown'}
+          {showBreakdown ? t('forecastGrid.hideBreakdown') : t('forecastGrid.showBreakdown')}
         </span>
       </h2>
       {generatedAt && (
         <time dateTime={generatedAt} className="text-gray-400 text-xs block mb-3">
-          Updated {new Date(generatedAt).toLocaleString()}
+          {t('forecastGrid.updated', { time: new Date(generatedAt).toLocaleString() })}
         </time>
       )}
 
