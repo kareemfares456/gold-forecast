@@ -15,6 +15,6 @@ api.interceptors.response.use(
 )
 
 export const fetchPrice = () => api.get('/api/gold/price').then((r) => r.data)
-export const fetchForecast = () => api.get('/api/gold/forecast').then((r) => r.data)
+export const fetchForecast = (lang = 'en') => api.get('/api/gold/forecast', { params: { lang } }).then((r) => r.data)
 export const fetchTechnical = () => api.get('/api/gold/technical').then((r) => r.data)
-export const fetchInstitutional = () => api.get('/api/gold/institutional').then((r) => r.data)
+export const fetchInstitutional = (lang = 'en') => api.get('/api/gold/institutional', { params: { lang } }).then((r) => r.data)

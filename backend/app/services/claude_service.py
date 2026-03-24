@@ -6,7 +6,7 @@ from app.utils.cache import cache
 from app.services.news_service import get_news_headlines
 
 
-def _build_cache_key(price: float, rsi: Optional[float], macd_signal: str) -> str:
+def _build_cache_key(price: float, rsi: Optional[float], macd_signal: str, lang: str = "en") -> str:
     """Build a coarse cache key so similar market states share cached responses."""
     price_bucket = int(price / 10) * 10  # e.g., 2340 -> 2340
     rsi_bucket = (
@@ -14,7 +14,7 @@ def _build_cache_key(price: float, rsi: Optional[float], macd_signal: str) -> st
         else "oversold" if (rsi and rsi < 30)
         else "neutral"
     )
-    return f"claude_analysis_{price_bucket}_{rsi_bucket}_{macd_signal}"
+    return f"claude_analysis_{price_bucket}_{rsi_bucket}_{macd_signal}_{lang}"
 
 
 def get_ai_analysis(
@@ -22,6 +22,7 @@ def get_ai_analysis(
     change_pct: float,
     technical_signals: Dict[str, Any],
     forecasts: Dict[str, float],
+    lang: str = "en",
 ) -> Dict[str, Any]:
     """
     Call Claude API to generate a narrative gold market analysis.
@@ -38,7 +39,7 @@ def get_ai_analysis(
 
     rsi_val = technical_signals.get("rsi", {}).get("value")
     macd_signal = technical_signals.get("macd", {}).get("crossover_signal", "neutral")
-    cache_key = _build_cache_key(current_price, rsi_val, macd_signal)
+    cache_key = _build_cache_key(current_price, rsi_val, macd_signal, lang)
 
     cached = cache.get(cache_key)
     if cached is not None:
@@ -74,7 +75,13 @@ def get_ai_analysis(
         if headlines else "No recent headlines available."
     )
 
-    prompt = f"""You are a concise gold market analyst. Write exactly 5 tweet-length bullets — one per time horizon — explaining what gold will do and WHY. Ground each "why" in the actual news headlines provided below. Plain language, no jargon, max 280 chars each.
+    lang_instruction = (
+        "\nIMPORTANT: Write all analysis text (the content after each colon) in Arabic (العربية). "
+        "Keep the format markers TODAY:, TOMORROW:, NEXT_WEEK:, NEXT_MONTH:, NEXT_YEAR:, SENTIMENT: in English exactly as shown."
+        if lang == "ar" else ""
+    )
+
+    prompt = f"""You are a concise gold market analyst. Write exactly 5 tweet-length bullets — one per time horizon — explaining what gold will do and WHY. Ground each "why" in the actual news headlines provided below. Plain language, no jargon, max 280 chars each.{lang_instruction}
 
 Current market data:
 - Price: ${current_price:.2f} ({change_pct:+.2f}% today)
