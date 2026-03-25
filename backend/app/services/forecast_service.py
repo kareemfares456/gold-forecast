@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 from app.services.data_service import get_ohlcv_df, get_current_price
-from app.services.arima_service import forecast_arima
+from app.services.arima_service import forecast_arima_multi
 from app.services.trend_service import forecast_trend
 from app.services.technical_service import get_technical_indicators
 from app.services.claude_service import get_ai_analysis
@@ -96,6 +96,10 @@ def get_ensemble_forecast(lang: str = "en") -> Dict[str, Any]:
     # Technical price target (same for all horizons — just a signal-based nudge)
     tech_target = _technical_price_target(current_price, tech)
 
+    # Fit ARIMA once for all timeframes (major performance improvement)
+    all_steps = [tf["trading_days"] for tf in TIMEFRAMES]
+    arima_results = forecast_arima_multi(close, all_steps)
+
     forecasts = []
     forecast_summary = {}  # for Claude prompt
 
@@ -103,8 +107,8 @@ def get_ensemble_forecast(lang: str = "en") -> Dict[str, Any]:
         steps = tf["trading_days"]
         w_arima, w_trend, w_tech = WEIGHTS[steps]
 
-        # Run models
-        arima_result = forecast_arima(close, steps)
+        # Use pre-computed ARIMA result; run trend model per timeframe (fast)
+        arima_result = arima_results[steps]
         trend_result = forecast_trend(close, steps)
 
         arima_price = arima_result["predicted_price"]

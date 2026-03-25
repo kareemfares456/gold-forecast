@@ -1,4 +1,5 @@
 import feedparser
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 from app.utils.cache import cache
 
@@ -41,26 +42,33 @@ def _is_relevant(text: str, keyword_set: set) -> bool:
     return any(kw in low for kw in keyword_set)
 
 
+def _parse_feed(url: str) -> list:
+    """Fetch and parse a single RSS feed. Returns list of entry titles."""
+    try:
+        return feedparser.parse(url).entries
+    except Exception:
+        return []
+
+
 def get_news_headlines(max_headlines: int = 8) -> list:
     cached = cache.get("news_headlines")
     if cached is not None:
         return cached
 
     headlines = []
-    for url in RSS_FEEDS:
-        try:
-            feed = feedparser.parse(url)
-            for entry in feed.entries[:20]:
+    # Fetch all feeds concurrently instead of sequentially
+    with ThreadPoolExecutor(max_workers=len(RSS_FEEDS)) as ex:
+        futures = {ex.submit(_parse_feed, url): url for url in RSS_FEEDS}
+        for future in as_completed(futures):
+            entries = future.result()
+            for entry in entries[:20]:
                 title = entry.get("title", "").strip()
                 if title and _is_relevant(title, KEYWORDS) and title not in headlines:
                     headlines.append(title)
                 if len(headlines) >= max_headlines:
                     break
-        except Exception:
-            continue
-        if len(headlines) >= max_headlines:
-            break
 
+    headlines = headlines[:max_headlines]
     cache.set("news_headlines", headlines, CACHE_TTL)
     return headlines
 
@@ -75,10 +83,12 @@ def get_institutional_headlines(max_headlines: int = 12, max_age_days: float = 3
     combined_kw = KEYWORDS | INSTITUTION_KEYWORDS
     headlines = []
 
-    for url in RSS_FEEDS:
-        try:
-            feed = feedparser.parse(url)
-            for entry in feed.entries[:30]:
+    # Fetch all feeds concurrently
+    with ThreadPoolExecutor(max_workers=len(RSS_FEEDS)) as ex:
+        futures = {ex.submit(_parse_feed, url): url for url in RSS_FEEDS}
+        for future in as_completed(futures):
+            entries = future.result()
+            for entry in entries[:30]:
                 title = entry.get("title", "").strip()
                 age = _entry_age_days(entry)
                 if age > max_age_days:
@@ -96,10 +106,7 @@ def get_institutional_headlines(max_headlines: int = 12, max_age_days: float = 3
                     headlines.append(f"{title}{f' ({pub_label})' if pub_label else ''}")
                 if len(headlines) >= max_headlines:
                     break
-        except Exception:
-            continue
-        if len(headlines) >= max_headlines:
-            break
 
+    headlines = headlines[:max_headlines]
     cache.set(cache_key, headlines, CACHE_TTL)
     return headlines

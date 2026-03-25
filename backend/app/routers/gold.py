@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 
@@ -11,7 +12,7 @@ router = APIRouter(prefix="/api/gold", tags=["gold"])
 
 @router.get("/price")
 async def price():
-    data = get_current_price()
+    data = await asyncio.to_thread(get_current_price)
     if "error" in data:
         return JSONResponse(status_code=503, content=data)
     return JSONResponse(
@@ -22,7 +23,7 @@ async def price():
 
 @router.get("/forecast")
 async def forecast(lang: str = Query("en")):
-    data = get_ensemble_forecast(lang=lang)
+    data = await asyncio.to_thread(get_ensemble_forecast, lang)
     if "error" in data:
         return JSONResponse(status_code=503, content=data)
     return JSONResponse(
@@ -33,7 +34,7 @@ async def forecast(lang: str = Query("en")):
 
 @router.get("/technical")
 async def technical():
-    data = get_technical_indicators()
+    data = await asyncio.to_thread(get_technical_indicators)
     if "error" in data:
         return JSONResponse(status_code=503, content=data)
     return JSONResponse(
@@ -44,10 +45,10 @@ async def technical():
 
 @router.get("/institutional")
 async def institutional(lang: str = Query("en")):
-    price_data = get_current_price()
+    price_data = await asyncio.to_thread(get_current_price)
     current_price = price_data.get("current_price", 0)
     change_pct = price_data.get("change_pct", 0)
-    data = get_institutional_forecasts(current_price, change_pct, lang=lang)
+    data = await asyncio.to_thread(get_institutional_forecasts, current_price, change_pct, lang)
     return JSONResponse(
         content=data,
         headers={"Cache-Control": "no-cache"},
