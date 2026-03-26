@@ -36,3 +36,16 @@ body {
 ::-webkit-scrollbar-track { background: #F1F3F5; }
 ::-webkit-scrollbar-thumb { background: #CED4DA; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #ADB5BD; }
+
+/* RTL support */
+[dir="rtl"] body {
+  font-family: 'Tajawal', system-ui, sans-serif;
+}
+
+[dir="rtl"] .ml-1 { margin-left: 0; margin-right: 0.25rem; }
+[dir="rtl"] .ml-2 { margin-left: 0; margin-right: 0.5rem; }
+[dir="rtl"] .ml-3 { margin-left: 0; margin-right: 0.75rem; }
+[dir="rtl"] .mr-1 { margin-right: 0; margin-left: 0.25rem; }
+[dir="rtl"] .mr-2 { margin-right: 0; margin-left: 0.5rem; }
+[dir="rtl"] .text-right { text-align: left; }
+[dir="rtl"] .text-left  { text-align: right; }

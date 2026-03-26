@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import ForecastCard from './ForecastCard'
+import { useLanguage } from '../../i18n/LanguageContext'
 
-export default function ForecastGrid({ forecasts, loading }) {
+export default function ForecastGrid({ forecasts, loading, generatedAt }) {
+  const { t } = useLanguage()
   const [showBreakdown, setShowBreakdown] = useState(false)
 
   if (loading) {
@@ -22,13 +24,18 @@ export default function ForecastGrid({ forecasts, loading }) {
   if (!forecasts?.length) return null
 
   return (
-    <div>
-      <h2 className="text-gray-900 font-semibold text-base mb-3">
-        Price Forecasts
+    <section aria-label={t('forecastGrid.ariaLabel')}>
+      <h2 className="text-gray-900 font-semibold text-base mb-1">
+        {t('forecastGrid.title')}
         <span className="text-gray-500 font-normal text-sm ml-2">
-          {showBreakdown ? 'Click any card to hide breakdown' : 'Click a card to see model breakdown'}
+          {showBreakdown ? t('forecastGrid.hideBreakdown') : t('forecastGrid.showBreakdown')}
         </span>
       </h2>
+      {generatedAt && (
+        <time dateTime={generatedAt} className="text-gray-400 text-xs block mb-3">
+          {t('forecastGrid.updated', { time: new Date(generatedAt).toLocaleString() })}
+        </time>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {forecasts.map((f) => (
@@ -40,6 +47,6 @@ export default function ForecastGrid({ forecasts, loading }) {
           />
         ))}
       </div>
-    </div>
+    </section>
   )
 }

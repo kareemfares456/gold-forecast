@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { formatCompact } from '../../utils/formatters'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 const InfoTooltip = ({ text }) => {
+  const { t } = useLanguage()
   const [visible, setVisible] = useState(false)
   return (
     <span className="relative inline-flex items-center ml-1">
@@ -11,7 +13,7 @@ const InfoTooltip = ({ text }) => {
         onFocus={() => setVisible(true)}
         onBlur={() => setVisible(false)}
         className="text-gray-400 hover:text-gray-600 transition-colors leading-none"
-        aria-label="More info"
+        aria-label={t('technical.moreInfo')}
       >
         <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor">
           <circle cx="6.5" cy="6.5" r="6" stroke="currentColor" strokeWidth="1" fill="none"/>
@@ -19,9 +21,9 @@ const InfoTooltip = ({ text }) => {
         </svg>
       </button>
       {visible && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white border border-gray-200 rounded-lg p-2.5 text-xs text-gray-700 shadow-lg z-50 pointer-events-none">
+        <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg p-2.5 text-xs text-gray-700 shadow-lg z-50 pointer-events-none" style={{ right: 'auto', maxWidth: 'min(14rem, calc(100vw - 1rem))' }}>
+          <div className="absolute bottom-full left-3 border-4 border-transparent border-b-gray-200" />
           {text}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-200" />
         </div>
       )}
     </span>
@@ -29,6 +31,7 @@ const InfoTooltip = ({ text }) => {
 }
 
 const SignalBadge = ({ signal }) => {
+  const { tLabel } = useLanguage()
   const colors = {
     bullish: 'bg-green-50 text-green-700 border-green-200',
     bearish: 'bg-red-50 text-red-700 border-red-200',
@@ -43,30 +46,29 @@ const SignalBadge = ({ signal }) => {
   const cls = colors[signal?.toLowerCase()] || colors.neutral
   return (
     <span className={`text-xs font-semibold px-2 py-0.5 rounded border uppercase ${cls}`}>
-      {signal || 'N/A'}
+      {tLabel(signal) || 'N/A'}
     </span>
   )
 }
 
 const RSIGauge = ({ value }) => {
+  const { t } = useLanguage()
   if (value == null) return <div className="text-gray-500 text-sm">N/A</div>
   const pct = Math.min(100, Math.max(0, value))
   const color = value > 70 ? '#f97316' : value < 30 ? '#3b82f6' : '#16a34a'
   return (
     <div>
       <div className="flex justify-between text-xs text-gray-500 mb-1">
-        <span>Oversold 30</span>
+        <span>{t('technical.oversold')}</span>
         <span className="font-bold" style={{ color }}>{value.toFixed(1)}</span>
-        <span>70 Overbought</span>
+        <span>{t('technical.overbought')}</span>
       </div>
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden relative">
-        {/* Zones */}
         <div className="absolute inset-0 flex">
           <div className="w-[30%] bg-blue-200 opacity-50" />
           <div className="w-[40%] bg-green-100 opacity-50" />
           <div className="w-[30%] bg-orange-200 opacity-50" />
         </div>
-        {/* Needle */}
         <div
           className="absolute top-0 h-full w-1 rounded-full"
           style={{ left: `${pct}%`, backgroundColor: color, transform: 'translateX(-50%)' }}
@@ -77,6 +79,8 @@ const RSIGauge = ({ value }) => {
 }
 
 export default function TechnicalPanel({ data, loading }) {
+  const { t } = useLanguage()
+
   if (loading) {
     return (
       <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 space-y-3">
@@ -110,11 +114,11 @@ export default function TechnicalPanel({ data, loading }) {
     <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-gray-900 font-semibold text-base flex items-center">
-          Technical Analysis
-          <InfoTooltip text="Price-based indicators that help gauge trend direction, momentum, and whether gold may be overbought or oversold. All signals are combined into the overall rating." />
+          {t('technical.title')}
+          <InfoTooltip text={t('technical.titleTooltip')} />
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-gray-500 text-xs">Overall:</span>
+          <span className="text-gray-500 text-xs">{t('technical.overall')}</span>
           <span className={`font-bold uppercase text-sm ${overallColors[signals?.overall] || 'text-gray-500'}`}>
             {signals?.overall || '—'}
           </span>
@@ -125,8 +129,8 @@ export default function TechnicalPanel({ data, loading }) {
         {/* Moving Averages */}
         <div>
           <p className="text-gray-500 text-xs font-medium tracking-wider mb-2 flex items-center">
-            Moving Averages
-            <InfoTooltip text="The average price over a given number of days. Price above the average suggests an uptrend; below suggests a downtrend. EMA reacts faster by weighting recent prices more." />
+            {t('technical.movingAverages')}
+            <InfoTooltip text={t('technical.movingAveragesTooltip')} />
           </p>
           <div className="space-y-1.5">
             {maEntries.map(({ label, val }) => {
@@ -138,7 +142,7 @@ export default function TechnicalPanel({ data, loading }) {
                   <div className="flex items-center gap-2">
                     <span className="text-gray-700 font-mono text-sm">{formatCompact(val)}</span>
                     <span className={`text-xs font-medium ${above ? 'text-green-600' : 'text-red-500'}`}>
-                      {above ? 'Above ▲' : 'Below ▼'}
+                      {above ? t('technical.above') : t('technical.below')}
                     </span>
                   </div>
                 </div>
@@ -150,8 +154,8 @@ export default function TechnicalPanel({ data, loading }) {
         {/* RSI */}
         <div>
           <p className="text-gray-500 text-xs font-medium tracking-wider mb-2 flex items-center">
-            RSI (14)
-            <InfoTooltip text="Measures momentum on a 0–100 scale. Below 30 means oversold — price may bounce. Above 70 means overbought — price may pull back. Between 30–70 is neutral." />
+            {t('technical.rsi')}
+            <InfoTooltip text={t('technical.rsiTooltip')} />
           </p>
           <RSIGauge value={rsi?.value} />
           <div className="mt-2 flex justify-end">
@@ -162,17 +166,17 @@ export default function TechnicalPanel({ data, loading }) {
         {/* MACD */}
         <div>
           <p className="text-gray-500 text-xs font-medium tracking-wider mb-2 flex items-center">
-            MACD (12, 26, 9)
-            <InfoTooltip text="Tracks momentum by comparing two moving averages. When the histogram turns positive, it signals building upward momentum. Negative means downward pressure." />
+            {t('technical.macd')}
+            <InfoTooltip text={t('technical.macdTooltip')} />
           </p>
           <div className="space-y-1.5">
             {[
-              { label: 'MACD Line', val: macd?.macd_line },
-              { label: 'Signal Line', val: macd?.signal_line },
-              { label: 'Histogram', val: macd?.histogram },
-            ].map(({ label, val }) => (
-              <div key={label} className="flex justify-between">
-                <span className="text-gray-600 text-sm">{label}</span>
+              { key: 'macdLine', val: macd?.macd_line },
+              { key: 'signalLine', val: macd?.signal_line },
+              { key: 'histogram', val: macd?.histogram },
+            ].map(({ key, val }) => (
+              <div key={key} className="flex justify-between">
+                <span className="text-gray-600 text-sm">{t(`technical.${key}`)}</span>
                 <span className={`font-mono text-sm ${val != null && val > 0 ? 'text-green-600' : 'text-red-500'}`}>
                   {val != null ? val.toFixed(2) : '—'}
                 </span>
@@ -187,17 +191,17 @@ export default function TechnicalPanel({ data, loading }) {
         {/* Bollinger Bands */}
         <div>
           <p className="text-gray-500 text-xs font-medium tracking-wider mb-2 flex items-center">
-            Bollinger Bands (20, 2)
-            <InfoTooltip text="Volatility bands around a 20-day average. Price near the upper band may be stretched; near the lower band may be cheap. %B shows where price sits between the two bands." />
+            {t('technical.bollingerBands')}
+            <InfoTooltip text={t('technical.bollingerTooltip')} />
           </p>
           <div className="space-y-1.5">
             {[
-              { label: 'Upper', val: bb?.upper, color: 'text-red-500' },
-              { label: 'Middle (MA20)', val: bb?.middle, color: 'text-gray-700' },
-              { label: 'Lower', val: bb?.lower, color: 'text-green-600' },
-            ].map(({ label, val, color }) => (
-              <div key={label} className="flex justify-between">
-                <span className="text-gray-600 text-sm">{label}</span>
+              { key: 'upper', val: bb?.upper, color: 'text-red-500' },
+              { key: 'middle', val: bb?.middle, color: 'text-gray-700' },
+              { key: 'lower', val: bb?.lower, color: 'text-green-600' },
+            ].map(({ key, val, color }) => (
+              <div key={key} className="flex justify-between">
+                <span className="text-gray-600 text-sm">{t(`technical.${key}`)}</span>
                 <span className={`font-mono text-sm ${color}`}>
                   {val != null ? formatCompact(val) : '—'}
                 </span>

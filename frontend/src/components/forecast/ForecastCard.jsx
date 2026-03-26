@@ -1,8 +1,8 @@
 import { formatCompact, formatPct, directionColor } from '../../utils/formatters'
-
-const MODEL_LABELS = { arima: 'ARIMA', trend: 'Trend', technical: 'Technical' }
+import { useLanguage } from '../../i18n/LanguageContext'
 
 export default function ForecastCard({ forecast, showBreakdown, onClick }) {
+  const { t, tLabel } = useLanguage()
   const {
     label,
     predicted_price,
@@ -22,13 +22,14 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
   const models = model_contributions ? Object.entries(model_contributions) : []
 
   return (
-    <div
+    <article
       className={`bg-dark-800 border rounded-xl p-4 cursor-pointer transition-colors ${
         showBreakdown ? 'border-gold-500' : 'border-dark-600 hover:border-gold-700'
       }`}
       onClick={onClick}
+      aria-label={`Gold price forecast: ${label}`}
     >
-      <div className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-2">{label}</div>
+      <div className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-2">{tLabel(label)}</div>
 
       <div className="text-gold-600 font-bold text-lg sm:text-2xl font-mono leading-none mb-1 truncate">
         {formatCompact(predicted_price)}
@@ -48,7 +49,7 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
         <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div className="h-full bg-gold-600 rounded-full" style={{ width: `${fillPct}%` }} />
         </div>
-        <p className="text-gray-400 text-xs mt-1 text-center">95% confidence range</p>
+        <p className="text-gray-400 text-xs mt-1 text-center">{t('forecastCard.confidence')}</p>
       </div>
 
       {showBreakdown && models.length > 0 && (
@@ -56,7 +57,7 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
           {models.map(([model, data]) => (
             <div key={model} className="flex justify-between items-center">
               <span className="text-gray-600 text-xs">
-                {MODEL_LABELS[model] || model}
+                {t(`models.${model}`) || model}
                 <span className="text-gray-400 ml-1">
                   {(data.weight * 100).toFixed(0)}%
                 </span>
@@ -65,11 +66,11 @@ export default function ForecastCard({ forecast, showBreakdown, onClick }) {
             </div>
           ))}
           <div className="flex justify-between items-center pt-1 border-t border-gray-200">
-            <span className="text-gray-600 text-xs font-semibold">Blended</span>
+            <span className="text-gray-600 text-xs font-semibold">{t('forecastCard.blended')}</span>
             <span className="text-gold-600 font-mono text-xs font-bold">{formatCompact(predicted_price)}</span>
           </div>
         </div>
       )}
-    </div>
+    </article>
   )
 }

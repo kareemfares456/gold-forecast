@@ -1,4 +1,7 @@
+import { useLanguage } from '../../i18n/LanguageContext'
+
 const StanceBadge = ({ stance }) => {
+  const { tLabel } = useLanguage()
   const styles = {
     bullish: 'bg-green-50 text-green-700 border-green-200',
     bearish: 'bg-red-50 text-red-700 border-red-200',
@@ -7,7 +10,7 @@ const StanceBadge = ({ stance }) => {
   const cls = styles[stance?.toLowerCase()] || styles.neutral
   return (
     <span className={`text-xs font-semibold px-2 py-0.5 rounded border uppercase ${cls}`}>
-      {stance || 'N/A'}
+      {tLabel(stance) || 'N/A'}
     </span>
   )
 }
@@ -23,6 +26,8 @@ const SkeletonRow = () => (
 )
 
 export default function InstitutionalPanel({ data, loading }) {
+  const { t } = useLanguage()
+
   if (loading) {
     return (
       <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
@@ -35,10 +40,8 @@ export default function InstitutionalPanel({ data, loading }) {
   if (!data?.available) {
     return (
       <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
-        <h2 className="text-gray-900 font-semibold text-base mb-3">Institutional Forecasts</h2>
-        <p className="text-gray-500 text-sm">
-          AI-powered institutional analysis unavailable — ANTHROPIC_API_KEY not configured.
-        </p>
+        <h2 className="text-gray-900 font-semibold text-base mb-3">{t('institutional.title')}</h2>
+        <p className="text-gray-500 text-sm">{t('institutional.unavailable')}</p>
       </div>
     )
   }
@@ -52,11 +55,11 @@ export default function InstitutionalPanel({ data, loading }) {
   return (
     <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-gray-900 font-semibold text-base">Institutional Forecasts</h2>
+        <h2 className="text-gray-900 font-semibold text-base">{t('institutional.title')}</h2>
         <div className="flex items-center gap-2 text-xs">
-          {bullish > 0 && <span className="text-green-600">{bullish} bullish</span>}
-          {neutral > 0 && <span className="text-gray-500">{neutral} neutral</span>}
-          {bearish > 0 && <span className="text-red-500">{bearish} bearish</span>}
+          {bullish > 0 && <span className="text-green-600">{t('institutional.bullish', { n: bullish })}</span>}
+          {neutral > 0 && <span className="text-gray-500">{t('institutional.neutral', { n: neutral })}</span>}
+          {bearish > 0 && <span className="text-red-500">{t('institutional.bearish', { n: bearish })}</span>}
         </div>
       </div>
 

@@ -27,6 +27,10 @@ export default defineConfig({
             return 'vendor-axios'
           }
         },
+        // Ensure deterministic, content-hashed filenames
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
   },

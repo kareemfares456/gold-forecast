@@ -11,6 +11,8 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { formatCompact } from '../../utils/formatters'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { translations } from '../../i18n/translations'
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -62,7 +64,7 @@ const ForecastDot = (props) => {
     )
   }
 
-  const label = payload.date.replace('+', '')
+  const label = payload.displayLabel ?? payload.date.replace('+', '')
   const price = formatCompact(payload.forecast)
   const offset = LABEL_OFFSETS[payload.colorIndex % LABEL_OFFSETS.length] || { dx: -38, dy: -30 }
 
@@ -116,6 +118,8 @@ const ForecastDot = (props) => {
 }
 
 export default function PriceChart({ history, forecasts }) {
+  const { t, lang } = useLanguage()
+  const labelMap = translations[lang]?.labels ?? {}
   const containerRef = useRef(null)
   const [containerWidth, setContainerWidth] = useState(800)
 
@@ -134,6 +138,7 @@ export default function PriceChart({ history, forecasts }) {
 
   const forecastPoints = (forecasts || []).map((f, i) => ({
     date: `+${f.label}`,
+    displayLabel: labelMap[f.label] ?? f.label,
     forecast: f.predicted_price,
     colorIndex: i,
   }))
@@ -168,16 +173,17 @@ export default function PriceChart({ history, forecasts }) {
 
   const todayDate = historyData[historyData.length - 1]?.date
 
-  // On mobile, inject isMobile into dot via a closure wrapper
   const DotWithMobile = (props) => <ForecastDot {...props} isMobile={isMobile} />
 
   return (
-    <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm" ref={containerRef}>
+    <figure className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm" ref={containerRef}>
       <h2 className="text-gray-900 font-semibold text-base mb-4">
-        Price History &amp; Forecasts
-        <span className="text-gray-500 font-normal text-sm ml-2">(90 days + model projections)</span>
+        {t('chart.title')}
+        <span className="text-gray-500 font-normal text-sm ml-2">{t('chart.subtitle')}</span>
       </h2>
+      <figcaption className="sr-only">{t('chart.srCaption')}</figcaption>
 
+      <div role="img" aria-label={t('chart.srLabel')}>
       <ResponsiveContainer width="100%" height={isMobile ? 280 : 400}>
         <ComposedChart
           data={combined}
@@ -220,7 +226,7 @@ export default function PriceChart({ history, forecasts }) {
               x={todayDate}
               stroke="#D1D5DB"
               strokeDasharray="4 2"
-              label={{ value: 'Today', fill: '#6b7280', fontSize: 10, position: 'insideTopLeft' }}
+              label={{ value: t('chart.today'), fill: '#6b7280', fontSize: 10, position: 'insideTopLeft' }}
             />
           )}
           <Area
@@ -231,7 +237,7 @@ export default function PriceChart({ history, forecasts }) {
             fill="url(#goldGradient)"
             dot={false}
             activeDot={{ r: 4, fill: '#eab308' }}
-            name="Close"
+            name={t('chart.close')}
             connectNulls={false}
             isAnimationActive={false}
           />
@@ -243,14 +249,15 @@ export default function PriceChart({ history, forecasts }) {
             strokeDasharray="6 4"
             dot={<DotWithMobile />}
             activeDot={{ r: 8, fill: '#fbbf24', stroke: '#F8F9FA', strokeWidth: 2 }}
-            name="Forecast"
+            name={t('chart.forecast')}
             connectNulls={true}
             isAnimationActive={false}
           />
         </ComposedChart>
       </ResponsiveContainer>
+      </div>
 
-      {/* Mobile forecast legend — shown instead of inline annotation boxes */}
+      {/* Mobile forecast legend */}
       {isMobile && forecastPoints.length > 0 && (
         <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-200 justify-between">
           {forecastPoints.map((fp, i) => {
@@ -260,7 +267,7 @@ export default function PriceChart({ history, forecasts }) {
                 <div className="flex items-center gap-1 mb-0.5">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
                   <p className="text-gray-500 text-xs leading-tight whitespace-nowrap">
-                    {fp.date.replace('+', '')}
+                    {fp.displayLabel ?? fp.date.replace('+', '')}
                   </p>
                 </div>
                 <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>
@@ -271,6 +278,6 @@ export default function PriceChart({ history, forecasts }) {
           })}
         </div>
       )}
-    </div>
+    </figure>
   )
 }

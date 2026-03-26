@@ -1,5 +1,6 @@
 import anthropic
 import json
+import re
 from datetime import date
 from typing import Dict, Any
 
@@ -11,7 +12,7 @@ from app.services.news_service import get_institutional_headlines
 INSTITUTIONAL_CACHE_TTL = 6 * 3600
 
 
-def get_institutional_forecasts(current_price: float, change_pct: float) -> Dict[str, Any]:
+def get_institutional_forecasts(current_price: float, change_pct: float, lang: str = "en") -> Dict[str, Any]:
     """
     Use Claude to generate a structured summary of major institutional
     gold price forecasts grounded in recent news headlines.
@@ -21,7 +22,7 @@ def get_institutional_forecasts(current_price: float, change_pct: float) -> Dict
 
     today = date.today().isoformat()          # e.g. "2026-03-23"
     price_bucket = int(current_price / 50) * 50
-    cache_key = f"institutional_{price_bucket}_{today}"   # refreshes every day
+    cache_key = f"institutional_{price_bucket}_{today}_{lang}"   # refreshes every day
     cached = cache.get(cache_key)
     if cached is not None:
         return cached
@@ -31,6 +32,12 @@ def get_institutional_forecasts(current_price: float, change_pct: float) -> Dict
         "Recent news from the last 3 days:\n" + "\n".join(f"- {h}" for h in headlines)
         if headlines
         else "No recent institutional headlines found — use your best knowledge of each institution's latest publicly known view."
+    )
+
+    lang_instruction = (
+        '\nIMPORTANT: Write the "rationale" field value in Arabic (العربية). '
+        'Keep "institution", "target", and "stance" values in English.'
+        if lang == "ar" else ""
     )
 
     prompt = f"""You are a financial research analyst. Today's date is {today}.
@@ -43,7 +50,7 @@ Based on the news above AND your knowledge of each institution's most recent pub
 - Their primary rationale in one plain sentence
 - Overall stance: bullish, neutral, or bearish
 
-Institutions: Goldman Sachs, JPMorgan, Citigroup, UBS, Bank of America, World Gold Council.
+Institutions: Goldman Sachs, JPMorgan, Citigroup, UBS, Bank of America, World Gold Council.{lang_instruction}
 
 Respond ONLY with a JSON array, no markdown, no extra text:
 [
@@ -56,10 +63,13 @@ Respond ONLY with a JSON array, no markdown, no extra text:
 ]"""
 
     try:
+        # Arabic rationale sentences use more tokens — allocate extra budget
+        max_tokens = 1200 if lang == "ar" else 700
+
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model="claude-opus-4-6",
-            max_tokens=600,
+            max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )
         text = message.content[0].text.strip()
@@ -69,13 +79,28 @@ Respond ONLY with a JSON array, no markdown, no extra text:
             lines = text.split("\n")
             text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
 
-        institutions = json.loads(text)
+        # Robust JSON extraction: find the outermost [...] even if there is extra text
+        try:
+            institutions = json.loads(text)
+        except json.JSONDecodeError:
+            match = re.search(r'\[.*\]', text, re.DOTALL)
+            if match:
+                institutions = json.loads(match.group())
+            else:
+                raise
 
-        note = (
-            "Based on news from the last 3 days and latest published research."
-            if headlines else
-            "Based on latest published research — no recent headlines found."
-        )
+        if lang == "ar":
+            note = (
+                "استناداً إلى أخبار الأيام الثلاثة الأخيرة وآخر الأبحاث المنشورة."
+                if headlines else
+                "استناداً إلى آخر الأبحاث المنشورة — لم تُعثر على عناوين أخبار حديثة."
+            )
+        else:
+            note = (
+                "Based on news from the last 3 days and latest published research."
+                if headlines else
+                "Based on latest published research — no recent headlines found."
+            )
         result = {
             "available": True,
             "error": None,
