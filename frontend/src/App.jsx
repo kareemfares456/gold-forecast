@@ -1,15 +1,31 @@
+import { lazy, Suspense } from 'react'
 import './index.css'
 import Header from './components/layout/Header'
 import Disclaimer from './components/layout/Disclaimer'
-import PriceChart from './components/charts/PriceChart'
 import ForecastGrid from './components/forecast/ForecastGrid'
-import TechnicalPanel from './components/technical/TechnicalPanel'
-import AIAnalysis from './components/ai/AIAnalysis'
-import InstitutionalPanel from './components/institutional/InstitutionalPanel'
 import { useGoldPrice } from './hooks/useGoldPrice'
 import { useForecast } from './hooks/useForecast'
 import { useTechnical } from './hooks/useTechnical'
 import { useInstitutional } from './hooks/useInstitutional'
+
+// Heavy components loaded lazily — recharts + complex UI deferred until after initial paint
+const PriceChart       = lazy(() => import('./components/charts/PriceChart'))
+const TechnicalPanel   = lazy(() => import('./components/technical/TechnicalPanel'))
+const AIAnalysis       = lazy(() => import('./components/ai/AIAnalysis'))
+const InstitutionalPanel = lazy(() => import('./components/institutional/InstitutionalPanel'))
+
+// Shared skeleton placeholder while lazy chunks load
+function PanelSkeleton({ className = '' }) {
+  return (
+    <div className={`bg-white rounded-2xl border border-gray-200 animate-pulse ${className}`}>
+      <div className="p-6 space-y-3">
+        <div className="h-4 bg-gray-100 rounded w-1/3" />
+        <div className="h-4 bg-gray-100 rounded w-2/3" />
+        <div className="h-4 bg-gray-100 rounded w-1/2" />
+      </div>
+    </div>
+  )
+}
 
 export default function App() {
   const { data: priceData, loading: priceLoading, refetch: refetchPrice, lastUpdatedAt } = useGoldPrice()
@@ -22,13 +38,15 @@ export default function App() {
       <Header data={priceData} loading={priceLoading} onRefresh={refetchPrice} lastUpdatedAt={lastUpdatedAt} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Price chart */}
-        <PriceChart
-          history={priceData?.history}
-          forecasts={forecastData?.forecasts}
-        />
+        {/* Price chart — lazy (recharts chunk) */}
+        <Suspense fallback={<PanelSkeleton className="h-80" />}>
+          <PriceChart
+            history={priceData?.history}
+            forecasts={forecastData?.forecasts}
+          />
+        </Suspense>
 
-        {/* Forecast cards */}
+        {/* Forecast cards — always eager (no recharts dependency) */}
         <ForecastGrid
           forecasts={forecastData?.forecasts}
           loading={forecastLoading}
@@ -36,15 +54,21 @@ export default function App() {
 
         {/* AI + Technical side by side on large screens */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <AIAnalysis
-            data={forecastData?.ai_analysis}
-            loading={forecastLoading}
-          />
-          <TechnicalPanel data={technicalData} loading={technicalLoading} />
+          <Suspense fallback={<PanelSkeleton />}>
+            <AIAnalysis
+              data={forecastData?.ai_analysis}
+              loading={forecastLoading}
+            />
+          </Suspense>
+          <Suspense fallback={<PanelSkeleton />}>
+            <TechnicalPanel data={technicalData} loading={technicalLoading} />
+          </Suspense>
         </div>
 
         {/* Institutional forecasts — full width */}
-        <InstitutionalPanel data={institutionalData} loading={institutionalLoading} />
+        <Suspense fallback={<PanelSkeleton />}>
+          <InstitutionalPanel data={institutionalData} loading={institutionalLoading} />
+        </Suspense>
 
         {/* Refetch forecast button */}
         <div className="text-center">

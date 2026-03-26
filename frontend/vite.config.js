@@ -12,4 +12,22 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Rolldown (Vite 8) requires manualChunks as a function
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'vendor-react'
+          }
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3') || id.includes('node_modules/victory')) {
+            return 'vendor-recharts'
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'vendor-axios'
+          }
+        },
+      },
+    },
+  },
 })

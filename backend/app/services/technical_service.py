@@ -1,6 +1,4 @@
-import pandas as pd
-import numpy as np
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 
 from app.services.data_service import get_ohlcv_df
 from app.utils.cache import cache
@@ -9,6 +7,7 @@ from app.config import settings
 
 def _safe_float(val) -> Optional[float]:
     """Convert to float, return None if NaN/None."""
+    import numpy as np  # lazy import
     try:
         v = float(val)
         return round(v, 4) if not np.isnan(v) else None
@@ -16,8 +15,9 @@ def _safe_float(val) -> Optional[float]:
         return None
 
 
-def compute_indicators(df: pd.DataFrame) -> Dict[str, Any]:
+def compute_indicators(df) -> Dict[str, Any]:
     """Compute all technical indicators on the provided OHLCV DataFrame."""
+    import numpy as np  # lazy import
     close = df["Close"]
     high = df["High"]
     low = df["Low"]

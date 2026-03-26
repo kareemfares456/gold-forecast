@@ -1,18 +1,20 @@
-import numpy as np
-import pandas as pd
 import warnings
-from typing import Dict, Any, Optional
-
-from statsmodels.tsa.arima.model import ARIMA
-import warnings
+from typing import Dict, Any
 
 
-def forecast_arima(close: pd.Series, steps: int) -> Dict[str, Any]:
+def forecast_arima(close, steps: int) -> Dict[str, Any]:
     """
     Fit ARIMA(1,1,1) on log close prices and forecast `steps` trading days.
     Falls back to ARIMA(1,1,0) if convergence fails.
     Returns predicted prices and 95% confidence intervals.
+
+    Heavy imports (numpy, pandas, statsmodels) are deferred to first call
+    so the server starts up quickly on cold boot.
     """
+    # Lazy imports — only loaded when this function is first called
+    import numpy as np
+    from statsmodels.tsa.arima.model import ARIMA
+
     # Use last 252 trading days (approx 1 year) for fitting
     series = close.tail(252).copy()
     log_series = np.log(series)
@@ -62,6 +64,7 @@ def forecast_arima(close: pd.Series, steps: int) -> Dict[str, Any]:
 
 def _naive_forecast(last_price: float, steps: int) -> Dict[str, Any]:
     """Fallback: assume price stays flat with uncertainty growing over time."""
+    import numpy as np
     uncertainty = last_price * 0.005 * np.sqrt(steps)
     return {
         "predicted_price": round(last_price, 2),

@@ -1,16 +1,20 @@
-import numpy as np
-import pandas as pd
 from typing import Dict, Any
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
-from sklearn.pipeline import Pipeline
 
 
-def forecast_trend(close: pd.Series, steps: int) -> Dict[str, Any]:
+def forecast_trend(close, steps: int) -> Dict[str, Any]:
     """
     Fit polynomial regression (degree=2) on last 90 trading days
     and extrapolate `steps` trading days forward.
+
+    Heavy imports (numpy, sklearn) are deferred to first call
+    so the server starts up quickly on cold boot.
     """
+    # Lazy imports — only loaded when this function is first called
+    import numpy as np
+    from sklearn.preprocessing import PolynomialFeatures
+    from sklearn.linear_model import LinearRegression
+    from sklearn.pipeline import Pipeline
+
     series = close.tail(90).values
     n = len(series)
     last_price = float(close.iloc[-1])
