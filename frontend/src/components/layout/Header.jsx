@@ -63,9 +63,6 @@ export default function Header({ data, loading, onRefresh, lastUpdatedAt }) {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gold-500 flex items-center justify-center text-white font-bold text-sm">
-            Au
-          </div>
           <div className="min-w-0">
             <h1 className="text-gray-900 font-bold text-base sm:text-lg leading-none">{t('header.title')}</h1>
             <p className="text-gray-500 text-xs hidden sm:block">{t('header.subtitle')}</p>

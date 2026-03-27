@@ -8,7 +8,7 @@ export default function ForecastGrid({ forecasts, loading, generatedAt }) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="bg-dark-800 border border-dark-600 rounded-xl p-4 space-y-2">
             <div className="skeleton h-3 w-16" />
@@ -37,8 +37,8 @@ export default function ForecastGrid({ forecasts, loading, generatedAt }) {
         </time>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-        {forecasts.map((f) => (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {forecasts.slice(0, 4).map((f) => (
           <ForecastCard
             key={f.timeframe}
             forecast={f}
@@ -46,6 +46,18 @@ export default function ForecastGrid({ forecasts, loading, generatedAt }) {
             onClick={() => setShowBreakdown((v) => !v)}
           />
         ))}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+        <div className="hidden sm:block" />
+        {forecasts.slice(4).map((f) => (
+          <ForecastCard
+            key={f.timeframe}
+            forecast={f}
+            showBreakdown={showBreakdown}
+            onClick={() => setShowBreakdown((v) => !v)}
+          />
+        ))}
+        <div className="hidden sm:block" />
       </div>
     </section>
   )

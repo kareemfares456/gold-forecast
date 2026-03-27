@@ -30,14 +30,14 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
-// Golden gradient per forecast point — lightest (near-term) → deepest (long-term)
+// Golden gradient per forecast point — medium gold (near-term) → deepest (long-term)
 const FORECAST_COLORS = [
-  '#FDE68A', // Tomorrow  — light gold
-  '#FCD34D', // 3 Days    — soft gold
-  '#FBBF24', // 1 Week    — warm gold
-  '#F59E0B', // 1 Month   — amber
-  '#D97706', // 6 Months  — deep amber
-  '#B45309', // 1 Year    — rich bronze
+  '#F59E0B', // Tomorrow  — amber
+  '#D97706', // 3 Days    — deep amber
+  '#B45309', // 1 Week    — rich bronze
+  '#92400E', // 1 Month   — dark bronze
+  '#78350F', // 6 Months  — deep brown
+  '#451A03', // 1 Year    — darkest brown
 ]
 
 // Stagger heights so annotation boxes don't overlap on desktop
