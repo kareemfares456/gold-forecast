@@ -259,23 +259,45 @@ export default function PriceChart({ history, forecasts }) {
 
       {/* Mobile forecast legend */}
       {isMobile && forecastPoints.length > 0 && (
-        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-200 justify-between">
-          {forecastPoints.map((fp, i) => {
-            const color = FORECAST_COLORS[i % FORECAST_COLORS.length]
-            return (
-              <div key={fp.date} className="flex flex-col items-center">
-                <div className="flex items-center gap-1 mb-0.5">
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                  <p className="text-gray-500 text-xs leading-tight whitespace-nowrap">
-                    {fp.displayLabel ?? fp.date.replace('+', '')}
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <div className="flex justify-between gap-x-4 gap-y-2">
+            {forecastPoints.slice(0, 4).map((fp, i) => {
+              const color = FORECAST_COLORS[i % FORECAST_COLORS.length]
+              return (
+                <div key={fp.date} className="flex flex-col items-center">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                    <p className="text-gray-500 text-xs leading-tight whitespace-nowrap">
+                      {fp.displayLabel ?? fp.date.replace('+', '')}
+                    </p>
+                  </div>
+                  <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>
+                    {formatCompact(fp.forecast)}
                   </p>
                 </div>
-                <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>
-                  {formatCompact(fp.forecast)}
-                </p>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
+          {forecastPoints.length > 4 && (
+            <div className="flex justify-center gap-x-8 mt-2">
+              {forecastPoints.slice(4).map((fp, i) => {
+                const color = FORECAST_COLORS[(i + 4) % FORECAST_COLORS.length]
+                return (
+                  <div key={fp.date} className="flex flex-col items-center">
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                      <p className="text-gray-500 text-xs leading-tight whitespace-nowrap">
+                        {fp.displayLabel ?? fp.date.replace('+', '')}
+                      </p>
+                    </div>
+                    <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>
+                      {formatCompact(fp.forecast)}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
     </figure>

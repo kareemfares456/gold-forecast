@@ -14,7 +14,6 @@ const PriceChart         = lazy(() => import('./components/charts/PriceChart'))
 const TechnicalPanel     = lazy(() => import('./components/technical/TechnicalPanel'))
 const AIAnalysis         = lazy(() => import('./components/ai/AIAnalysis'))
 const InstitutionalPanel = lazy(() => import('./components/institutional/InstitutionalPanel'))
-
 // Shared skeleton placeholder while lazy chunks load
 function PanelSkeleton({ className = '' }) {
   return (

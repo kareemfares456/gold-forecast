@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d0d"/>
+      <stop offset="100%" style="stop-color:#1c1308"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FDE68A"/>
+      <stop offset="50%" style="stop-color:#F59E0B"/>
+      <stop offset="100%" style="stop-color:#D97706"/>
+    </linearGradient>
+    <linearGradient id="chartLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:0"/>
+      <stop offset="20%" style="stop-color:#F59E0B;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#FDE68A;stop-opacity:0.6"/>
+    </linearGradient>
+    <linearGradient id="chartFill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="0" y1="210" x2="1200" y2="210" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="0" y1="420" x2="1200" y2="420" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="300" y1="0" x2="300" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="900" y1="0" x2="900" y2="630" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+
+  <!-- Chart fill area -->
+  <polygon points="80,520 200,490 320,470 440,430 560,400 660,370 760,330 860,300 960,265 1080,235 1160,200 1160,560 80,560"
+    fill="url(#chartFill)"/>
+
+  <!-- Chart line (mock price chart) -->
+  <polyline
+    points="80,520 200,490 320,470 440,430 560,400 660,370 760,330 860,300 960,265 1080,235 1160,200"
+    fill="none" stroke="url(#chartLine)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Chart dots at key points -->
+  <circle cx="760" cy="330" r="5" fill="#F59E0B" opacity="0.6"/>
+  <circle cx="1160" cy="200" r="6" fill="#FDE68A" opacity="0.9"/>
+
+  <!-- Top gold accent bar -->
+  <rect x="0" y="0" width="1200" height="5" fill="url(#goldGrad)"/>
+
+  <!-- Gold bar icon -->
+  <rect x="80" y="158" width="72" height="40" rx="6" fill="#F59E0B"/>
+  <rect x="88" y="165" width="56" height="26" rx="3" fill="#FDE68A" opacity="0.25"/>
+  <text x="116" y="184" font-family="Georgia, 'Times New Roman', serif" font-size="15" fill="#1c1308" font-weight="bold" text-anchor="middle">AU</text>
+
+  <!-- Main title -->
+  <text x="80" y="110" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="bold" fill="url(#goldGrad)" letter-spacing="-1">Gold Price Forecasted</text>
+
+  <!-- Subtitle -->
+  <text x="80" y="148" font-family="-apple-system, Arial, sans-serif" font-size="24" fill="#9CA3AF" letter-spacing="0.3">AI-Powered XAU/USD Predictions &amp; Technical Analysis</text>
+
+  <!-- Divider -->
+  <rect x="80" y="220" width="480" height="2" fill="url(#goldGrad)" opacity="0.5" rx="1"/>
+
+  <!-- Feature pills -->
+  <!-- ARIMA pill -->
+  <rect x="80" y="245" width="148" height="36" rx="18" fill="#F59E0B" opacity="0.15"/>
+  <rect x="80" y="245" width="148" height="36" rx="18" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.4"/>
+  <text x="154" y="268" font-family="-apple-system, Arial, sans-serif" font-size="15" fill="#FDE68A" text-anchor="middle">📈 ARIMA + AI</text>
+
+  <!-- RSI pill -->
+  <rect x="240" y="245" width="148" height="36" rx="18" fill="#F59E0B" opacity="0.15"/>
+  <rect x="240" y="245" width="148" height="36" rx="18" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.4"/>
+  <text x="314" y="268" font-family="-apple-system, Arial, sans-serif" font-size="15" fill="#FDE68A" text-anchor="middle">🔬 RSI · MACD</text>
+
+  <!-- Free pill -->
+  <rect x="400" y="245" width="110" height="36" rx="18" fill="#F59E0B" opacity="0.15"/>
+  <rect x="400" y="245" width="110" height="36" rx="18" fill="none" stroke="#F59E0B" stroke-width="1" opacity="0.4"/>
+  <text x="455" y="268" font-family="-apple-system, Arial, sans-serif" font-size="15" fill="#FDE68A" text-anchor="middle">✦ Free</text>
+
+  <!-- Institutional section -->
+  <text x="80" y="330" font-family="-apple-system, Arial, sans-serif" font-size="17" fill="#6B7280">Institutional views from</text>
+  <text x="80" y="356" font-family="-apple-system, Arial, sans-serif" font-size="19" fill="#D1D5DB" font-weight="500">Goldman Sachs · JPMorgan · Citigroup · UBS · BofA</text>
+
+  <!-- Forecast timeframes row -->
+  <text x="80" y="410" font-family="-apple-system, Arial, sans-serif" font-size="16" fill="#6B7280">Forecasts for:</text>
+  <text x="80" y="432" font-family="-apple-system, Arial, sans-serif" font-size="18" fill="#9CA3AF">Tomorrow · 1 Week · 1 Month · 6 Months · 1 Year</text>
+
+  <!-- EN + AR badge -->
+  <rect x="80" y="458" width="88" height="28" rx="14" fill="#1F2937"/>
+  <text x="124" y="477" font-family="-apple-system, Arial, sans-serif" font-size="13" fill="#9CA3AF" text-anchor="middle">EN | عربي</text>
+
+  <!-- URL -->
+  <text x="80" y="570" font-family="-apple-system, Arial, sans-serif" font-size="20" fill="#F59E0B" opacity="0.85">goldpriceforecasted.com</text>
+
+  <!-- Bottom gold accent bar -->
+  <rect x="0" y="625" width="1200" height="5" fill="url(#goldGrad)"/>
+</svg>

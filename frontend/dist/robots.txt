@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://goldpriceforecasted.com/sitemap.xml
+Sitemap: https://www.goldpriceforecasted.com/sitemap.xml

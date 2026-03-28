@@ -1,13 +1,16 @@
 import os
 import threading
+from datetime import date
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from contextlib import asynccontextmanager
 
 from app.routers.gold import router as gold_router
+from app.routers.tracker import router as tracker_router
+from app.services import tracker_service
 from app.config import settings
 
 
@@ -34,6 +37,8 @@ def _warm_all_caches():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Initialise the tracker DB (no-op if already exists)
+    tracker_service.init_db()
     # Warm all caches in the background — server starts immediately and
     # data is ready before the first user request arrives.
     threading.Thread(target=_warm_all_caches, daemon=True).start()
@@ -50,16 +55,41 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "DELETE"],
     allow_headers=["*"],
 )
 
 app.include_router(gold_router)
+app.include_router(tracker_router)
 
 
 @app.get("/health")
 async def health():
     return {"status": "ok", "ticker": settings.gold_ticker}
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap_xml():
+    """Dynamic sitemap — lastmod is always today so Google sees fresh content."""
+    today = date.today().isoformat()
+    content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.goldpriceforecasted.com/</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.goldpriceforecasted.com/"/>
+    <xhtml:link rel="alternate" hreflang="ar"        href="https://www.goldpriceforecasted.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.goldpriceforecasted.com/"/>
+  </url>
+</urlset>"""
+    return Response(
+        content=content,
+        media_type="application/xml",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
 
 
 # Serve React frontend in production (when dist/ exists)

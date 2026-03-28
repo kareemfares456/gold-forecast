@@ -25,6 +25,14 @@ async def forecast(lang: str = Query("en")):
     data = get_ensemble_forecast(lang=lang)
     if "error" in data:
         return JSONResponse(status_code=503, content=data)
+
+    # Persist today's forecasts to the tracker DB (dedup: one per timeframe per day)
+    try:
+        from app.services import tracker_service
+        tracker_service.capture_daily_forecasts(data)
+    except Exception:
+        pass  # Never fail the main forecast response
+
     return JSONResponse(
         content=data,
         headers={"Cache-Control": "no-cache"},
