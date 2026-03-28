@@ -8,25 +8,13 @@ from app.config import settings
 from app.utils.cache import cache
 from app.services.news_service import get_institutional_headlines
 
-# Cache for 6 hours; cache key includes today's date so data refreshes daily
+# Refresh every 6 hours; stable cache key enables stale-while-revalidate across restarts
 INSTITUTIONAL_CACHE_TTL = 6 * 3600
 
 
-def get_institutional_forecasts(current_price: float, change_pct: float, lang: str = "en") -> Dict[str, Any]:
-    """
-    Use Claude to generate a structured summary of major institutional
-    gold price forecasts grounded in recent news headlines.
-    """
-    if not settings.anthropic_api_key:
-        return {"available": False, "error": "ANTHROPIC_API_KEY not configured", "institutions": []}
-
-    today = date.today().isoformat()          # e.g. "2026-03-23"
-    price_bucket = int(current_price / 50) * 50
-    cache_key = f"institutional_{price_bucket}_{today}_{lang}"   # refreshes every day
-    cached = cache.get(cache_key)
-    if cached is not None:
-        return cached
-
+def _generate_institutional(lang: str, current_price: float, change_pct: float) -> Dict[str, Any]:
+    """Call Claude to build institutional forecast data. Returns the result dict (no caching here)."""
+    today = date.today().isoformat()
     headlines = get_institutional_headlines(max_headlines=12, max_age_days=3)
     news_block = (
         "Recent news from the last 3 days:\n" + "\n".join(f"- {h}" for h in headlines)
@@ -63,9 +51,7 @@ Respond ONLY with a JSON array, no markdown, no extra text:
 ]"""
 
     try:
-        # Arabic rationale sentences use more tokens — allocate extra budget
         max_tokens = 1200 if lang == "ar" else 700
-
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
             model="claude-opus-4-6",
@@ -74,12 +60,10 @@ Respond ONLY with a JSON array, no markdown, no extra text:
         )
         text = message.content[0].text.strip()
 
-        # Strip markdown code fences if present
         if text.startswith("```"):
             lines = text.split("\n")
             text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
 
-        # Robust JSON extraction: find the outermost [...] even if there is extra text
         try:
             institutions = json.loads(text)
         except json.JSONDecodeError:
@@ -101,14 +85,45 @@ Respond ONLY with a JSON array, no markdown, no extra text:
                 if headlines else
                 "Based on latest published research — no recent headlines found."
             )
-        result = {
+
+        return {
             "available": True,
             "error": None,
             "institutions": institutions,
             "note": note,
         }
-        cache.set(cache_key, result, INSTITUTIONAL_CACHE_TTL)
-        return result
 
     except Exception as e:
         return {"available": False, "error": str(e), "institutions": []}
+
+
+def get_institutional_forecasts(current_price: float, change_pct: float, lang: str = "en") -> Dict[str, Any]:
+    """
+    Return institutional gold forecasts — served instantly via stale-while-revalidate.
+    Stable cache key (no date/price in key) means stale data is always available across
+    restarts and deploys; TTL handles scheduled refresh every 6 hours.
+    """
+    if not settings.anthropic_api_key:
+        return {"available": False, "error": "ANTHROPIC_API_KEY not configured", "institutions": []}
+
+    cache_key = f"institutional_{lang}"
+
+    fresh = cache.get(cache_key)
+    if fresh is not None:
+        return fresh
+
+    stale = cache.get_stale(cache_key)
+    if stale is not None:
+        _cp, _ch = current_price, change_pct
+        cache.schedule_refresh(
+            cache_key,
+            INSTITUTIONAL_CACHE_TTL,
+            lambda: _generate_institutional(lang, _cp, _ch),
+        )
+        return stale
+
+    # No cached data at all — generate synchronously (first ever call or after cache wipe)
+    result = _generate_institutional(lang, current_price, change_pct)
+    if result.get("available"):
+        cache.set(cache_key, result, INSTITUTIONAL_CACHE_TTL)
+    return result

@@ -71,16 +71,8 @@ def _technical_price_target(current_price: float, tech: Dict[str, Any]) -> float
     return adjusted
 
 
-def get_ensemble_forecast(lang: str = "en") -> Dict[str, Any]:
-    """
-    Compute weighted ensemble forecasts for all timeframes.
-    Cached for FORECAST_CACHE_TTL seconds (default 1 hour).
-    """
-    cache_key = f"ensemble_forecast_{settings.gold_ticker}_{lang}"
-    cached = cache.get(cache_key)
-    if cached is not None:
-        return cached
-
+def _compute_ensemble_forecast(lang: str = "en") -> Dict[str, Any]:
+    """Generate fresh ensemble forecast — called synchronously or from background thread."""
     df = get_ohlcv_df("2y")
     if df is None or df.empty:
         return {"error": "Unable to fetch gold data for forecasting"}
@@ -171,5 +163,32 @@ def get_ensemble_forecast(lang: str = "en") -> Dict[str, Any]:
         "disclaimer": DISCLAIMER.get(lang, DISCLAIMER["en"]),
     }
 
-    cache.set(cache_key, result, settings.forecast_cache_ttl)
+    return result
+
+
+def get_ensemble_forecast(lang: str = "en") -> Dict[str, Any]:
+    """
+    Return ensemble forecasts — served instantly via stale-while-revalidate.
+    Fresh data is returned when cached; stale data is returned immediately
+    while a background thread regenerates; first-ever call waits synchronously.
+    """
+    cache_key = f"ensemble_forecast_{settings.gold_ticker}_{lang}"
+
+    fresh = cache.get(cache_key)
+    if fresh is not None:
+        return fresh
+
+    stale = cache.get_stale(cache_key)
+    if stale is not None:
+        cache.schedule_refresh(
+            cache_key,
+            settings.forecast_cache_ttl,
+            lambda: _compute_ensemble_forecast(lang),
+        )
+        return stale
+
+    # No cached data at all — generate synchronously (first ever call or after cache wipe)
+    result = _compute_ensemble_forecast(lang)
+    if result is not None:
+        cache.set(cache_key, result, settings.forecast_cache_ttl)
     return result
