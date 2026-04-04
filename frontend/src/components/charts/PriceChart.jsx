@@ -178,7 +178,6 @@ export default function PriceChart({ history, forecasts }) {
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-gray-900 font-semibold text-base">
           {t('chart.title')}
-          <span className="text-gray-500 font-normal text-sm ml-2">{t('chart.subtitle')}</span>
         </h2>
       </div>
       <figcaption className="sr-only">{t('chart.srCaption')}</figcaption>
