@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchInstitutional } from '../services/api'
 import { useLanguage } from '../i18n/LanguageContext'
 
@@ -8,13 +8,20 @@ export function useInstitutional() {
   const [error, setError] = useState(null)
   const { lang } = useLanguage()
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     setLoading(true)
-    fetchInstitutional(lang)
-      .then(setData)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
+    try {
+      const result = await fetchInstitutional(lang)
+      setData(result)
+      setError(null)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }, [lang])
+
+  useEffect(() => { load() }, [load])
 
   return { data, loading, error }
 }
