@@ -38,13 +38,15 @@ Based on the news above AND your knowledge of each institution's most recent pub
 - Their primary rationale in one plain sentence
 - Overall stance: bullish, neutral, or bearish
 
+CRITICAL: All price targets must reflect the CURRENT gold price of ${current_price:.2f}. Targets should be above ${current_price:.2f} for bullish views. Do NOT use outdated targets from when gold was below $4,000 — update them to reflect today's market level.
+
 Institutions: Goldman Sachs, JPMorgan, Citigroup, UBS, Bank of America, World Gold Council.{lang_instruction}
 
 Respond ONLY with a JSON array, no markdown, no extra text:
 [
   {{
     "institution": "Goldman Sachs",
-    "target": "$3,500 by end-2026",
+    "target": "${current_price * 1.12:.0f} by end-2026",
     "stance": "bullish",
     "rationale": "Central bank demand and safe-haven flows support structurally higher prices."
   }}
