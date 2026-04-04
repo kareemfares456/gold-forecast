@@ -57,8 +57,8 @@ export const translations = {
       moreInfo: 'More info',
     },
     ai: {
-      title: 'AI Market Analysis',
-      poweredBy: 'powered by Claude',
+      title: 'Comprehensive Market Analysis',
+      poweredBy: '',
       unavailable: 'AI analysis unavailable',
     },
     institutional: {
@@ -173,8 +173,8 @@ export const translations = {
       moreInfo: 'مزيد من المعلومات',
     },
     ai: {
-      title: 'تحليل السوق بالذكاء الاصطناعي',
-      poweredBy: 'مدعوم بـ Claude',
+      title: 'تحليل شامل للسوق',
+      poweredBy: '',
       unavailable: 'التحليل بالذكاء الاصطناعي غير متاح',
     },
     institutional: {

@@ -40,7 +40,6 @@ export default function AIAnalysis({ data, loading }) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-gray-900 font-semibold text-base">
           {t('ai.title')}
-          <span className="text-gray-500 font-normal text-sm ml-2">{t('ai.poweredBy')}</span>
         </h2>
         {sentiment && (
           <span className={`text-xs font-bold px-2 py-0.5 rounded border uppercase ${sentimentColors[sentiment] || sentimentColors.neutral}`}>
