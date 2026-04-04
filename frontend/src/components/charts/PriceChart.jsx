@@ -27,7 +27,7 @@ const FORECAST_COLORS = [
   '#451A03', // 1 Year    — darkest brown
 ]
 
-const PERIODS = ['1D', '5D', '1M', '3M', 'YTD', '1Y', '5Y', 'All']
+const PERIODS = ['1D', '5D', '1M', '3M', 'YTD', '1Y', 'All']
 
 function filterHistory(history, period) {
   if (!history?.length) return history || []
@@ -121,7 +121,7 @@ export default function PriceChart({ history, forecasts }) {
   const labelMap = translations[lang]?.labels ?? {}
   const containerRef = useRef(null)
   const [containerWidth, setContainerWidth] = useState(800)
-  const [period, setPeriod] = useState('3M')
+  const [period, setPeriod] = useState('1M')
 
   useEffect(() => {
     if (!containerRef.current) return
