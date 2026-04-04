@@ -14,8 +14,8 @@ import { formatCompact } from '../../utils/formatters'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { translations } from '../../i18n/translations'
 
-// TradingView-style teal
-const TV_TEAL = '#26a69a'
+// Gold chart color
+const TV_TEAL = '#eab308'
 
 // Golden gradient per forecast point — medium gold (near-term) → deepest (long-term)
 const FORECAST_COLORS = [
