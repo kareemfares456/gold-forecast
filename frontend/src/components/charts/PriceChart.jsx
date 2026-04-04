@@ -27,7 +27,7 @@ const FORECAST_COLORS = [
   '#451A03', // 1 Year    — darkest brown
 ]
 
-const PERIODS = ['1D', '5D', '1M', '3M', 'YTD', '1Y', 'All']
+const PERIODS = ['1M', '3M', '6M', '1Y']
 
 function filterHistory(history, period) {
   if (!history?.length) return history || []
@@ -39,9 +39,8 @@ function filterHistory(history, period) {
     case '5D': cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 5); break
     case '1M': cutoff = new Date(today); cutoff.setMonth(cutoff.getMonth() - 1); break
     case '3M': cutoff = new Date(today); cutoff.setMonth(cutoff.getMonth() - 3); break
-    case 'YTD': cutoff = new Date(today.getFullYear(), 0, 1); break
+    case '6M': cutoff = new Date(today); cutoff.setMonth(cutoff.getMonth() - 6); break
     case '1Y': cutoff = new Date(today); cutoff.setFullYear(cutoff.getFullYear() - 1); break
-    case '5Y': cutoff = new Date(today); cutoff.setFullYear(cutoff.getFullYear() - 5); break
     default: return history
   }
   const cutoffStr = cutoff.toISOString().slice(0, 10)
