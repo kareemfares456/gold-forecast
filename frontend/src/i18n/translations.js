@@ -78,6 +78,20 @@ export const translations = {
       marketAnalysis: 'Market Analysis',
       institutionalForecasts: 'Institutional Forecasts',
     },
+
+    faq: {
+      title: 'Gold Price Forecast FAQ',
+      q1: 'How accurate are your gold price forecasts?',
+      a1: 'Our forecasts combine statistical models, technical signals, and market context to estimate likely price ranges, but they are probabilistic and can be affected by sudden macro events.',
+      q2: 'What makes gold prices move up or down?',
+      a2: 'Gold reacts to interest rates, US dollar strength, inflation expectations, central bank policy, geopolitical risk, and broad market sentiment.',
+      q3: 'How often is the forecast updated?',
+      a3: 'The dashboard refreshes with the latest available data, and you can manually update forecasts any time using the refresh button.',
+      q4: 'Is this website financial advice?',
+      a4: 'No. The content is for research and education only, and should be used with your own analysis and risk management.',
+      q5: 'What is the difference between short-term and long-term gold forecasts?',
+      a5: 'Short-term forecasts focus on recent momentum and volatility, while long-term forecasts weigh macroeconomic trends and broader cycle signals.',
+    },
     disclaimer: 'All forecasts are speculative and not financial advice.',
     models: {
       arima: 'ARIMA',
@@ -194,6 +208,20 @@ export const translations = {
       priceChart: 'مخطط الأسعار',
       marketAnalysis: 'تحليل السوق',
       institutionalForecasts: 'توقعات المؤسسات',
+    },
+
+    faq: {
+      title: 'الأسئلة الشائعة حول توقعات الذهب',
+      q1: 'ما مدى دقة توقعات أسعار الذهب لديكم؟',
+      a1: 'تجمع توقعاتنا بين نماذج إحصائية وإشارات فنية وسياق السوق لتقدير نطاقات سعرية محتملة، لكنها احتمالية وتتأثر بالأحداث الاقتصادية المفاجئة.',
+      q2: 'ما العوامل التي تحرك أسعار الذهب صعودًا أو هبوطًا؟',
+      a2: 'يتحرك الذهب وفق أسعار الفائدة، قوة الدولار الأمريكي، توقعات التضخم، سياسات البنوك المركزية، المخاطر الجيوسياسية، ومعنويات السوق.',
+      q3: 'كم مرة يتم تحديث التوقعات؟',
+      a3: 'تتحدث اللوحة بأحدث البيانات المتاحة، ويمكنك أيضًا تحديث التوقعات يدويًا في أي وقت عبر زر التحديث.',
+      q4: 'هل هذا الموقع يقدم نصيحة مالية؟',
+      a4: 'لا. المحتوى لأغراض البحث والتثقيف فقط، ويجب استخدامه مع تحليلك الشخصي وإدارة المخاطر.',
+      q5: 'ما الفرق بين توقعات الذهب قصيرة المدى وطويلة المدى؟',
+      a5: 'تركز التوقعات قصيرة المدى على الزخم والتذبذب الحديث، بينما تركز التوقعات طويلة المدى على الاتجاهات الاقتصادية الكلية وإشارات الدورة الأوسع.',
     },
     disclaimer: 'جميع التوقعات تخمينية وليست نصيحة مالية.',
     models: {
