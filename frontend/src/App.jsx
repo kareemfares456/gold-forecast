@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import './index.css'
 import Header from './components/layout/Header'
 import Disclaimer from './components/layout/Disclaimer'
+import FAQSection from './components/layout/FAQSection'
 import ForecastGrid from './components/forecast/ForecastGrid'
 import { useGoldPrice } from './hooks/useGoldPrice'
 import { useForecast } from './hooks/useForecast'
@@ -95,6 +96,9 @@ export default function App() {
             </p>
           )}
         </div>
+
+        {/* SEO FAQ */}
+        <FAQSection />
 
         {/* Disclaimer */}
         <Disclaimer text={forecastData?.disclaimer} />
