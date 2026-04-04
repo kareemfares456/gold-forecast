@@ -40,10 +40,10 @@ export default function AIAnalysis({ data, loading }) {
   return (
     <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-gray-900 font-semibold text-base flex items-center gap-1.5">
+        <h2 className="text-gray-900 font-semibold text-base">
           {t('ai.title')}
           <span
-            className="relative inline-flex items-center"
+            className="relative inline-flex items-center align-middle ml-1"
             onMouseEnter={() => setTipVisible(true)}
             onMouseLeave={() => setTipVisible(false)}
           >
