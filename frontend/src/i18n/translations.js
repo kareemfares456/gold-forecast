@@ -59,6 +59,7 @@ export const translations = {
     ai: {
       title: 'Comprehensive Market Analysis',
       poweredBy: '',
+      titleTooltip: 'Combines all key factors: chart & trend analysis, latest market news, and financial institution forecasts.',
       unavailable: 'AI analysis unavailable',
     },
     institutional: {
@@ -175,6 +176,7 @@ export const translations = {
     ai: {
       title: 'تحليل شامل للسوق',
       poweredBy: '',
+      titleTooltip: 'يجمع جميع العوامل الرئيسية: تحليل الرسوم البيانية والاتجاهات، وأحدث أخبار السوق، وتوقعات المؤسسات المالية.',
       unavailable: 'التحليل بالذكاء الاصطناعي غير متاح',
     },
     institutional: {

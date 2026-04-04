@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 
 const sentimentColors = {
@@ -8,6 +9,7 @@ const sentimentColors = {
 
 export default function AIAnalysis({ data, loading }) {
   const { t, tLabel } = useLanguage()
+  const [tipVisible, setTipVisible] = useState(false)
 
   if (loading) {
     return (
@@ -38,8 +40,24 @@ export default function AIAnalysis({ data, loading }) {
   return (
     <div className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-gray-900 font-semibold text-base">
+        <h2 className="text-gray-900 font-semibold text-base flex items-center gap-1.5">
           {t('ai.title')}
+          <span
+            className="relative inline-flex items-center"
+            onMouseEnter={() => setTipVisible(true)}
+            onMouseLeave={() => setTipVisible(false)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 hover:text-gold-500 cursor-help flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <circle cx="12" cy="12" r="10" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-4m0-4h.01" />
+            </svg>
+            {tipVisible && (
+              <div className="absolute start-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-xl z-50 leading-relaxed pointer-events-none">
+                {t('ai.titleTooltip')}
+                <div className="absolute start-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900" />
+              </div>
+            )}
+          </span>
         </h2>
         {sentiment && (
           <span className={`text-xs font-bold px-2 py-0.5 rounded border uppercase ${sentimentColors[sentiment] || sentimentColors.neutral}`}>
