@@ -214,7 +214,7 @@ def get_current_price() -> Dict[str, Any]:
     high_52w = float(df["High"].max())
     low_52w = float(df["Low"].min())
 
-    history_df = df.tail(90)
+    history_df = df
     history = []
     for idx, row in history_df.iterrows():
         try:
