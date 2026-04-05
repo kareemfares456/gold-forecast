@@ -37,7 +37,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-dark-900">
-      <Header data={priceData} loading={priceLoading} onRefresh={refetchPrice} lastUpdatedAt={lastUpdatedAt} />
+      <Header />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Price chart — lazy (recharts chunk) */}
@@ -46,6 +46,9 @@ export default function App() {
             <PriceChart
               history={priceData?.history}
               forecasts={forecastData?.forecasts}
+              priceData={priceData}
+              onRefresh={refetchPrice}
+              loading={priceLoading}
             />
           </Suspense>
         </section>

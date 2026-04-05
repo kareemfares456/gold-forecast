@@ -10,7 +10,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from 'recharts'
-import { formatCompact } from '../../utils/formatters'
+import { formatPct, pctColor } from '../../utils/formatters'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { translations } from '../../i18n/translations'
 
@@ -52,12 +52,13 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   const relevant = payload.filter((p) => p.value != null)
   if (!relevant.length) return null
+  const fmt = (v) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-3 text-sm shadow-xl">
       <p className="text-gray-500 mb-1">{label}</p>
       {relevant.map((entry) => (
         <p key={entry.name} style={{ color: entry.color }} className="font-mono">
-          {entry.name}: {formatCompact(entry.value)}
+          {entry.name}: {fmt(entry.value)}
         </p>
       ))}
     </div>
@@ -88,8 +89,9 @@ const ForecastDot = (props) => {
     )
   }
 
+  const fmt = (v) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const label = payload.displayLabel ?? payload.date.replace('+', '')
-  const price = formatCompact(payload.forecast)
+  const price = fmt(payload.forecast)
   const offset = LABEL_OFFSETS[payload.colorIndex % LABEL_OFFSETS.length] || { dx: -38, dy: -30 }
 
   const boxW = 80
@@ -115,7 +117,9 @@ const ForecastDot = (props) => {
   )
 }
 
-export default function PriceChart({ history, forecasts }) {
+const PERIOD_LABELS = { '1M': '1 month', '3M': '3 months', '6M': '6 months', '1Y': '1 year' }
+
+export default function PriceChart({ history, forecasts, priceData, onRefresh, loading }) {
   const { t, lang } = useLanguage()
   const labelMap = translations[lang]?.labels ?? {}
   const containerRef = useRef(null)
@@ -173,15 +177,97 @@ export default function PriceChart({ history, forecasts }) {
 
   const DotWithMobile = (props) => <ForecastDot {...props} isMobile={isMobile} />
 
+  // Price header data
+  const price = priceData?.current_price
+  const change = priceData?.change
+  const changePct = priceData?.change_pct
+  const firstPrice = filteredHistory?.[0]?.close
+  const periodChangeAbs = price != null && firstPrice != null ? price - firstPrice : null
+  const periodChangePct = periodChangeAbs != null && firstPrice ? (periodChangeAbs / firstPrice) * 100 : null
+
+  const formatBigPrice = (p) =>
+    p != null ? Number(p).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '—'
+
+  const fmtChange = (v) =>
+    v != null ? `${v >= 0 ? '+' : ''}${Math.abs(v).toFixed(3)}` : '—'
+
   return (
-    <figure className="bg-dark-800 border border-dark-600 rounded-xl p-4 shadow-sm" ref={containerRef}>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-gray-900 font-semibold text-base">
-          {t('chart.title')}
-        </h2>
-      </div>
+    <figure className="bg-dark-800 border border-dark-600 rounded-xl p-4 sm:p-6 shadow-sm" ref={containerRef}>
       <figcaption className="sr-only">{t('chart.srCaption')}</figcaption>
 
+      {/* ── Price header (TradingView-style) ── */}
+      <div className="mb-4 sm:mb-6">
+        {/* Title row */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            {/* Gold coin icon */}
+            <div className="w-9 h-9 rounded-full bg-gold-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 9h18v3H3V9zm0 5h18v3H3v-3zm3-8h12v3H6V6z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-gray-800 font-bold text-sm leading-tight">GOLD (US$/OZ)</p>
+              <p className="text-gray-400 text-xs leading-tight">XAU/USD · TVC</p>
+            </div>
+          </div>
+
+          {/* Refresh button */}
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={loading}
+              title={t('header.refreshPrice')}
+              className="p-1.5 rounded-md text-gray-400 hover:text-gold-600 hover:bg-gold-50 disabled:opacity-40 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Big price */}
+        {loading && !price ? (
+          <div className="space-y-2">
+            <div className="skeleton h-12 w-56" />
+            <div className="skeleton h-4 w-40" />
+            <div className="skeleton h-4 w-48" />
+          </div>
+        ) : price ? (
+          <div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-gray-900 font-bold text-4xl sm:text-5xl font-mono tracking-tight leading-none">
+                {formatBigPrice(price)}
+              </span>
+              <span className="text-gray-400 text-lg font-medium">USD</span>
+            </div>
+
+            {/* Day change */}
+            <p className={`text-sm font-semibold mt-1.5 ${pctColor(changePct)}`}>
+              {fmtChange(change)}&nbsp;&nbsp;{formatPct(changePct)}&nbsp;
+              <span className="font-normal text-gray-400">at close</span>
+            </p>
+
+            {/* Period change */}
+            {periodChangeAbs != null && (
+              <p className={`text-sm font-semibold mt-0.5 ${pctColor(periodChangePct)}`}>
+                {fmtChange(periodChangeAbs)}&nbsp;&nbsp;{formatPct(periodChangePct)}&nbsp;
+                <span className="font-normal text-gray-400">past {PERIOD_LABELS[period] ?? period}</span>
+              </p>
+            )}
+          </div>
+        ) : null}
+      </div>
+
+      {/* ── Chart ── */}
       <div role="img" aria-label={t('chart.srLabel')}>
         <ResponsiveContainer width="100%" height={isMobile ? 280 : 400}>
           <ComposedChart
@@ -280,6 +366,7 @@ export default function PriceChart({ history, forecasts }) {
           <div className="flex justify-between gap-x-4 gap-y-2">
             {forecastPoints.slice(0, 4).map((fp, i) => {
               const color = FORECAST_COLORS[i % FORECAST_COLORS.length]
+              const fmt = (v) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
               return (
                 <div key={fp.date} className="flex flex-col items-center">
                   <div className="flex items-center gap-1 mb-0.5">
@@ -289,7 +376,7 @@ export default function PriceChart({ history, forecasts }) {
                     </p>
                   </div>
                   <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>
-                    {formatCompact(fp.forecast)}
+                    {fmt(fp.forecast)}
                   </p>
                 </div>
               )
@@ -299,6 +386,7 @@ export default function PriceChart({ history, forecasts }) {
             <div className="flex justify-center gap-x-8 mt-2">
               {forecastPoints.slice(4).map((fp, i) => {
                 const color = FORECAST_COLORS[(i + 4) % FORECAST_COLORS.length]
+                const fmt = (v) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 return (
                   <div key={fp.date} className="flex flex-col items-center">
                     <div className="flex items-center gap-1 mb-0.5">
@@ -308,7 +396,7 @@ export default function PriceChart({ history, forecasts }) {
                       </p>
                     </div>
                     <p className="font-mono text-xs font-bold whitespace-nowrap" style={{ color }}>
-                      {formatCompact(fp.forecast)}
+                      {fmt(fp.forecast)}
                     </p>
                   </div>
                 )
