@@ -8,6 +8,7 @@ export function useGoldPrice() {
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null)
 
   const load = useCallback(async () => {
+    setLoading(true)
     try {
       const result = await fetchPrice()
       setData(result)
