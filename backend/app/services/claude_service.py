@@ -105,7 +105,7 @@ SENTIMENT: bullish
     try:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         message = client.messages.create(
-            model="claude-opus-4-6",
+            model="claude-opus-4-7",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}],
         )

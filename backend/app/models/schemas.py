@@ -41,7 +41,7 @@ class ForecastTimeframe(BaseModel):
 
 
 class AIAnalysisResult(BaseModel):
-    analysis: Optional[str] = None
+    analysis: Optional[List[Dict[str, str]]] = None
     key_factors: Optional[List[str]] = None
     sentiment: Optional[str] = None   # "bullish" | "bearish" | "neutral"
     available: bool = True
